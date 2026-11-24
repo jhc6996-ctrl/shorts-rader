@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인스타 캐러셀 레이더 · 자동 생성 스튜디오</title>
+  <style>
+    :root {
+      --bg: #f6f5f0;
+      --surface: #ffffff;
+      --border: #e5e2d9;
+      --text: #18181b;
+      --muted: #6b7280;
+      --accent: #18181b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 18px 14px 64px; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 10px; margin-bottom: 16px;
+    }
+    h1 { margin: 0; font-size: 21px; font-weight: 800; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.active { background: #18181b; color: #fff; border-color: #18181b; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ideas-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px; margin-bottom: 24px;
+    }
+    .idea-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 15px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px;
+      border-radius: 999px; background: #f3f4f6; color: #374151;
+    }
+    .badge.hot { background: #fef2f2; color: #b91c1c; }
+    .idea-title { margin: 0; font-size: 16px; font-weight: 800; }
+    .feedback-box {
+      background: #fafaf8; border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px; font-size: 12.5px;
+    }
+    .feedback-label { font-weight: 800; font-size: 11px; color: #047857; margin-bottom: 4px; }
+
+    .studio-panel {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .slides-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
+    }
+    .slide-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .slide-card canvas {
+      width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border);
+    }
+    input[type="text"], textarea {
+      width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 10px;
+      font-size: 13px; font-family: inherit;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>🎠 인스타 캐러셀 레이더 & 생성기</h1>
+        <div class="sub">터지는 캐러셀 주제 + 모리 변형 피드백 → [이거 좋아] 누르면 슬라이드 즉시 생성</div>
+      </div>
+      <div class="row">
+        <a href="../" class="btn" style="text-decoration:none;">릴스·쇼츠</a>
+        <a href="../instatoon/" class="btn" style="text-decoration:none;">인스타툰</a>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="btn active" data-cat="all">전체</button>
+      <button class="btn" data-cat="parenting">육아·출산 (@morr___ii)</button>
+      <button class="btn" data-cat="beauty">피부·뷰티</button>
+      <button class="btn" data-cat="living">신혼·생활꿀팁</button>
+    </div>
+
+    <div class="ideas-grid" id="ideasGrid"></div>
+
+    <div class="studio-panel" id="studioSection">
+      <div class="row" style="justify-content:space-between; margin-bottom:10px;">
+        <div>
+          <strong style="font-size:16px;">✨ 캐러셀 슬라이드 스튜디오 (1080×1350)</strong>
+          <div class="sub" id="activeTopicLabel">위에서 [👍 이거 좋아]를 누르거나 아래에서 직접 편집하세요.</div>
+        </div>
+        <div class="row">
+          <input type="text" id="wmInput" value="@morr___ii" style="width:120px;" placeholder="계정명" />
+          <button class="btn" id="addSlideBtn">+ 슬라이드 추가</button>
+          <button class="btn primary" id="saveAllBtn">📥 전체 슬라이드 저장</button>
+        </div>
+      </div>
+      <div class="slides-grid" id="slidesGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const IDEAS = [
+      {
+        id: 1,
+        cat: "parenting",
+        badge: "육아 · 저장률 TOP",
+        title: "6개월 아기 밤잠 통잠 끊기는 진짜 이유 4가지",
+        refStats: "원본 결: 저장 4.2만 · 댓글 680개",
+        feedback: "원본은 '이유 나열'만 해서 심심해요. 희주 님 버전은 첫 장에 '이앓이 때문인 줄 알았는데 아니었다'로 훅을 걸고, 마지막 장에 낮잠 시간표 표를 넣으면 저장률이 2배 뜁니다!",
+        slides: [
+          { title: "잘 자던 6개월 아기\n새벽마다 깨는 진짜 이유", body: "이앓이 때문인 줄만 알았는데\n사실은 이게 원인이었어요 👇", tag: "COVER" },
+          { title: "1. 낮잠 3번 → 2번 과도기", body: "막잠을 오후 5시 넘겨 자면\n밤잠 압력이 뚝 떨어져요.\n막잠은 4시 반 전 기상 추천!", tag: "01" },
+          { title: "2. 밤수 끊기 전 배고픔 신호", body: "이유식 양이 늘면서 분유 총량이\n갑자기 줄면 새벽 3시에 깨요.\n막수 20~30ml만 늘려보세요.", tag: "02" },
+          { title: "3. 뒤집기·배밀이 연습 모드", body: "자다가도 뒤집기 시도하느라\n선잠에서 확 깨는 시기예요.\n낮에 터미타임 충분히 시켜주기!", tag: "03" },
+          { title: "딱 이것만 체크해보세요", body: "✅ 막잠 기상 16:30 이전\n✅ 밤잠 전 막수량 체크\n✅ 방 온도 22~23℃ 유지\n\n저장해두고 오늘 밤 바로 써먹기!", tag: "SUMMARY" }
+        ]
+      },
+      {
+        id: 2,
+        cat: "beauty",
+        badge: "피부·뷰티 · 공유 TOP",
+        title: "피부과 안 가고 모공 줄이는 닦토의 배신",
+        refStats: "원본 결: 조회 58만 · 저장 3.1만",
+        feedback: "단순 스킨케어 추천보다 '내가 매일 하던 습관이 오히려 독이었다'는 반전 포맷이 조회수가 잘 터집니다. 희주 님 톤에 맞게 차분하고 똑 부러지게 각색했어요!",
+        slides: [
+          { title: "모공 줄이려고 매일 했던\n이것, 오히려 모공 키웁니다", body: "피부 좋아지려고 열심히 했는데\n나만 몰랐던 3가지 함정", tag: "COVER" },
+          { title: "1. 매일 아침저녁 닦토", body: "화장솜 마찰이 각질층을 깎아서\n피부가 방어하려고 피지를 더 뿜어요.\n주 2회 이하로 줄이세요!", tag: "01" },
+          { title: "2. 팩 30분 이상 붙이기", body: "시트가 마르면서 오히려\n내 피부 수분을 빨아갑니다.\n딱 10~15분만 붙이고 떼기!", tag: "02" },
+          { title: "3. 모공팩 자주 뜯어내기", body: "피지 뽑힌 자리가 탄력을 잃으면\n세로 모공으로 더 크게 열려요.\n클레이나 약산성 세안으로 대체!", tag: "03" },
+          { title: "오늘부터 딱 3가지만", body: "• 토너는 손으로 톡톡 흡수\n• 마스크팩은 15분 알람 맞추기\n• 유수분 밸런스 크림 얇게 레이어링", tag: "SUMMARY" }
+        ]
+      },
+      {
+        id: 3,
+        cat: "living",
+        badge: "신혼·육아템 · 클릭 TOP",
+        title: "내돈내산 아기 외출템 정착 vs 방출 3종",
+        refStats: "원본 결: 저장 1.9만 · 링크 문의 폭주",
+        feedback: "무조건 좋다는 글보다 '방출템 vs 정착템' 솔직 비교가 신뢰도+댓글 문의가 제일 많이 달립니다. 집에 있는 실착 사진을 각 슬라이드에 첨부해 보세요!",
+        slides: [
+          { title: "6개월 아기 키우면서\n결국 정착한 외출템 vs 당근행", body: "광고 없이 직접 써보고\n손이 가는 것만 남겼어요", tag: "COVER" },
+          { title: "1. 아기띠: 통풍이 생명", body: "두꺼운 건 10분만 매도 땀범벅.\n메쉬 소재 가벼운 걸로 갈아타고\n어깨 통증이 반으로 줄었어요.", tag: "01" },
+          { title: "2. 힙시트: 잠깐 외출 치트키", body: "마트나 병원 잠깐 갈 땐\n1초 만에 올렸다 내리는\n사이드 힙시트가 압도적으로 편해요.", tag: "02" },
+          { title: "3. 휴대용 유모차: 한 손 폴딩", body: "아기 안고 한 손으로 접히는지\n기내 반입 무게(5kg대)인지가 핵심!", tag: "03" },
+          { title: "정착템 리스트 저장해두기", body: "출산 준비 중이라면\n무게 + 세탁 가능 여부 꼭 보세요!\n궁금한 템은 댓글로 남겨주세요 :)", tag: "SUMMARY" }
+        ]
+      }
+    ];
+
+    let currentCat = "all";
+    let slides = JSON.parse(JSON.stringify(IDEAS[0].slides)).map(s => ({ ...s, photo: null }));
+
+    function renderIdeas() {
+      const grid = document.getElementById("ideasGrid");
+      const list = IDEAS.filter(x => currentCat === "all" || x.cat === currentCat);
+      grid.innerHTML = list.map(idea => `
+        <div class="idea-card">
+          <div class="row" style="justify-content:space-between;">
+            <span class="badge hot">${idea.badge}</span>
+            <span style="font-size:11px; color:var(--muted);">${idea.refStats}</span>
+          </div>
+          <h3 class="idea-title">${idea.title}</h3>
+          <div class="feedback-box">
+            <div class="feedback-label">💡 모리의 변형 피드백</div>
+            <div>${idea.feedback}</div>
+          </div>
+          <button class="btn primary" onclick="loadIdea(${idea.id})" style="margin-top:auto;">👍 이거 좋아! 캐러셀 바로 생성</button>
+        </div>
+      `).join("");
+    }
+
+    window.loadIdea = (id) => {
+      const idea = IDEAS.find(x => x.id === id);
+      if (!idea) return;
+      slides = JSON.parse(JSON.stringify(idea.slides)).map(s => ({ ...s, photo: null }));
+      document.getElementById("activeTopicLabel").textContent = `선택된 주제: ${idea.title}`;
+      renderSlides();
+      document.getElementById("studioSection").scrollIntoView({ behavior: "smooth" });
+    };
+
+    function wrapText(ctx, text, maxW) {
+      const out = [];
+      text.split("\n").forEach(para => {
+        let cur = "";
+        for (const ch of para) {
+          if (ctx.measureText(cur + ch).width > maxW && cur) {
+            out.push(cur); cur = ch;
+          } else { cur += ch; }
+        }
+        out.push(cur);
+      });
+      return out;
+    }
+
+    function drawSlide(canvas, slide, idx) {
+      const W = 1080, H = 1350;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      // Warm cream editorial background
+      ctx.fillStyle = idx === 0 ? "#F5F1E8" : "#FAF8F4";
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle border
+      ctx.strokeStyle = "#E4DEC9";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(36, 36, W - 72, H - 72);
+
+      // Top tag & watermark
+      ctx.fillStyle = "#8C8270";
+      ctx.font = "700 28px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(slide.tag || `0${idx + 1}`, 84, 108);
+
+      const wm = document.getElementById("wmInput").value.trim();
+      if (wm) {
+        ctx.textAlign = "right";
+        ctx.fillText(wm, W - 84, H - 78);
+        ctx.textAlign = "left";
+      }
+
+      // Title
+      ctx.fillStyle = "#1E1B18";
+      ctx.font = "800 58px -apple-system, BlinkMacSystemFont, sans-serif";
+      const tLines = wrapText(ctx, slide.title, W - 168);
+      let y = slide.photo ? 190 : 260;
+      tLines.forEach(ln => {
+        ctx.fillText(ln, 84, y);
+        y += 78;
+      });
+
+      // Divider
+      y += 14;
+      ctx.fillStyle = "#D4C9B4";
+      ctx.fillRect(84, y, 120, 5);
+      y += 64;
+
+      // Body
+      ctx.fillStyle = "#4A443B";
+      ctx.font = "500 38px -apple-system, BlinkMacSystemFont, sans-serif";
+      const bLines = wrapText(ctx, slide.body, W - 168);
+      bLines.forEach(ln => {
+        ctx.fillText(ln, 84, y);
+        y += 58;
+      });
+
+      // Attached photo at bottom if provided
+      if (slide.photo) {
+        const px = 84, py = Math.max(y + 24, 680), pw = W - 168, ph = H - py - 120;
+        if (ph > 160) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(px, py, pw, ph, 24);
+          ctx.clip();
+          const ir = slide.photo.width / slide.photo.height;
+          const cr = pw / ph;
+          let sx = 0, sy = 0, sw = slide.photo.width, sh = slide.photo.height;
+          if (ir > cr) { sw = slide.photo.height * cr; sx = (slide.photo.width - sw) / 2; }
+          else { sh = slide.photo.width / cr; sy = (slide.photo.height - sh) / 2; }
+          ctx.drawImage(slide.photo, sx, sy, sw, sh, px, py, pw, ph);
+          ctx.restore();
+        }
+      }
+    }
+
+    function renderSlides() {
+      const grid = document.getElementById("slidesGrid");
+      grid.innerHTML = "";
+      slides.forEach((s, idx) => {
+        const card = document.createElement("div");
+        card.className = "slide-card";
+
+        const canvas = document.createElement("canvas");
+        card.appendChild(canvas);
+
+        const tInp = document.createElement("input");
+        tInp.type = "text";
+        tInp.value = s.title.replace(/\n/g, " / ");
+        tInp.placeholder = "슬라이드 제목 (/ 로 줄바꿈)";
+        tInp.oninput = (e) => { s.title = e.target.value.replace(/ \/ /g, "\n"); drawSlide(canvas, s, idx); };
+
+        const bInp = document.createElement("textarea");
+        bInp.style.minHeight = "76px";
+        bInp.value = s.body;
+        bInp.oninput = (e) => { s.body = e.target.value; drawSlide(canvas, s, idx); };
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const fInp = document.createElement("input");
+        fInp.type = "file"; fInp.accept = "image/*"; fInp.style.display = "none";
+        fInp.onchange = (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          const img = new Image();
+          img.onload = () => { s.photo = img; drawSlide(canvas, s, idx); };
+          img.src = URL.createObjectURL(f);
+        };
+
+        const photoBtn = document.createElement("button");
+        photoBtn.className = "btn";
+        photoBtn.textContent = s.photo ? "사진 변경" : "+ 내 사진 첨부";
+        photoBtn.onclick = () => fInp.click();
+
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "btn primary";
+        saveBtn.textContent = "저장";
+        saveBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.download = `carousel_${idx + 1}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn";
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => { slides.splice(idx, 1); renderSlides(); };
+
+        row.append(fInp, photoBtn, saveBtn, delBtn);
+        card.append(tInp, bInp, row);
+        grid.appendChild(card);
+
+        drawSlide(canvas, s, idx);
+      });
+    }
+
+    document.querySelectorAll(".tabs .btn").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".tabs .btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCat = btn.dataset.cat;
+        renderIdeas();
+      };
+    });
+    document.getElementById("wmInput").oninput = renderSlides;
+    document.getElementById("addSlideBtn").onclick = () => {
+      slides.push({ title: "새 슬라이드 제목", body: "내용을 입력하세요.", tag: `0${slides.length}`, photo: null });
+      renderSlides();
+    };
+    document.getElementById("saveAllBtn").onclick = () => {
+      document.querySelectorAll(".slide-card canvas").forEach((c, i) => {
+        setTimeout(() => {
+          const a = document.createElement("a");
+          a.download = `carousel_${i + 1}.png`;
+          a.href = c.toDataURL("image/png");
+          a.click();
+        }, i * 250);
+      });
+    };
+
+    renderIdeas();
+    renderSlides();
+  </script>
+</body>
+</html>
