@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>인스타툰 자동 생성기 · 16표정 스튜디오</title>
+  <title>인스타툰 자동 생성기 · 캐릭터 스튜디오</title>
   <style>
     :root {
       --bg: #f6f5f0;
@@ -40,9 +40,10 @@
     .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
     .btn {
       border: 1px solid var(--border); background: var(--surface); color: var(--text);
-      padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+      padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
     }
     .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.active-set { background: #18181b; color: #fff; border-color: #18181b; }
     input[type="text"] {
       padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px;
     }
@@ -82,13 +83,21 @@
     <header>
       <div>
         <h1>🎨 인스타툰 자동 생성기</h1>
-        <div class="sub">대본 붙여넣기 → 16가지 표정 자동 매칭 → 1080×1350 이미지 저장</div>
+        <div class="sub">거친 B급 10종 ↔ 통실 귀염 16종 · 배경 그림 & 대본 자동 조판</div>
       </div>
       <a href="../" class="btn" style="text-decoration:none;">← 릴스·쇼츠 레이더</a>
     </header>
 
     <div class="panel">
-      <div class="panel-title">1. 대본 한 번에 붙여넣기 (줄바꿈 1줄 = 1컷, 또는 빈 줄로 컷 구분)</div>
+      <div class="row" style="margin-top:0; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:800;">캐릭터 세트:</span>
+        <button class="btn active-set" id="setRawBtn">🤪 거친 B급 10종</button>
+        <button class="btn" id="setCuteBtn">🧸 통실 귀염 16종</button>
+        <input type="file" id="globalBgInput" accept="image/*" style="display:none;" />
+        <button class="btn" id="globalBgBtn" style="margin-left:auto;">🖼️ 공통 배경 이미지 넣기</button>
+        <button class="btn" id="clearGlobalBgBtn" style="display:none;">배경 빼기</button>
+      </div>
+      <div class="panel-title">대본 한 번에 붙여넣기 (줄바꿈 1줄 = 1컷)</div>
       <textarea id="bulkScript">피부과 말고 집에서 모공 줄이는 줄 알았는데...
 매일 닦토·스킨팩 하다가 모공 더 넓어진 사람 손!!
 솔직히 피부 겉만 불리면 피지 더 뿜고 절대 안 줄어요.
@@ -99,9 +108,9 @@
         <button class="btn primary" id="generateBtn">✨ 대본으로 컷 자동 생성</button>
         <button class="btn" id="addCutBtn">+ 빈 컷 추가</button>
         <button class="btn primary" id="downloadAllBtn">📥 전체 컷 한 번에 저장</button>
-        <input type="text" id="watermarkInput" value="@morr___ii" placeholder="계정명 (선택)" style="width:130px;" />
+        <input type="text" id="watermarkInput" value="@morr___ii" placeholder="계정명 (선택)" style="width:125px;" />
         <div style="display:flex; gap:6px; align-items:center; margin-left:auto;">
-          <span style="font-size:12px; color:var(--muted);">배경:</span>
+          <span style="font-size:12px; color:var(--muted);">단색 배경:</span>
           <div class="bg-dot active" data-bg="#FAF8F3" style="background:#FAF8F3;"></div>
           <div class="bg-dot" data-bg="#FFFFFF" style="background:#FFFFFF;"></div>
           <div class="bg-dot" data-bg="#FDF2F4" style="background:#FDF2F4;"></div>
@@ -115,47 +124,76 @@
   </div>
 
   <script>
-    const POSES = [
-      { id: "01", label: "폰음흉", kw: ["폰", "인스타", "릴스", "검색", "몰래"] },
-      { id: "02", label: "코파기", kw: ["음", "고민", "왜", "글쎄", "근데", "줄 알았"] },
-      { id: "03", label: "커피멍", kw: ["아아", "커피", "현실", "피곤", "일상", "솔직히"] },
-      { id: "04", label: "쭈글오열", kw: ["ㅜ", "ㅠ", "눈물", "슬퍼", "돈", "값", "망", "어쩔"] },
-      { id: "05", label: "삿대질", kw: ["진짜", "이거", "핵심", "기억", "바로", "딱", "손!!"] },
-      { id: "06", label: "능글엄지", kw: ["강추", "최고", "추천", "꿀템", "좋아", "무조건", "잡히"] },
-      { id: "07", label: "팔짱NO", kw: ["절대", "안 돼", "안됨", "금지", "비추", "끊", "최악"] },
-      { id: "08", label: "충격헉", kw: ["헉", "헐", "충격", "대박", "세상에", "미쳤"] },
-      { id: "09", label: "기절뻗음", kw: ["기절", "지침", "쓰러", "탈진", "힘들"] },
-      { id: "10", label: "화장품하트", kw: ["사랑", "최애", "반함", "인생템", "정착", "크림", "세럼"] }
-    ];
+    const SETS = {
+      raw: {
+        dir: "./chars_v5",
+        poses: [
+          { id: "01", label: "폰음흉", kw: ["폰", "인스타", "릴스", "검색", "몰래"] },
+          { id: "02", label: "코파기", kw: ["음", "고민", "왜", "글쎄", "근데", "줄 알았"] },
+          { id: "03", label: "커피멍", kw: ["아아", "커피", "현실", "피곤", "일상", "솔직히"] },
+          { id: "04", label: "쭈글오열", kw: ["ㅜ", "ㅠ", "눈물", "슬퍼", "돈", "값", "망", "어쩔"] },
+          { id: "05", label: "삿대질", kw: ["진짜", "이거", "핵심", "기억", "바로", "딱", "손!!"] },
+          { id: "06", label: "능글엄지", kw: ["강추", "최고", "추천", "꿀템", "좋아", "무조건", "잡히"] },
+          { id: "07", label: "팔짱NO", kw: ["절대", "안 돼", "안됨", "금지", "비추", "끊", "최악"] },
+          { id: "08", label: "충격헉", kw: ["헉", "헐", "충격", "대박", "세상에", "미쳤"] },
+          { id: "09", label: "기절뻗음", kw: ["기절", "지침", "쓰러", "탈진", "힘들"] },
+          { id: "10", label: "화장품하트", kw: ["사랑", "최애", "반함", "인생템", "정착", "크림", "세럼"] }
+        ]
+      },
+      cute: {
+        dir: "./chars",
+        poses: [
+          { id: "01_wave", label: "인사", kw: ["안녕", "시작", "반가", "소개"] },
+          { id: "02_point", label: "폰·코", kw: ["폰", "인스타", "검색", "릴스", "댓글"] },
+          { id: "03_deadpan", label: "정색", kw: ["솔직히", "근데", "팩트", "현실"] },
+          { id: "04_sweat", label: "당황", kw: ["어쩔", "큰일", "당황", "실수", "헉"] },
+          { id: "05_shock", label: "좁쌀", kw: ["좁쌀", "피부", "트러블", "손!!", "충격"] },
+          { id: "06_wink", label: "윙크", kw: ["꿀팁", "추천", "완벽", "괜찮"] },
+          { id: "07_cry", label: "오열", kw: ["ㅜ", "ㅠ", "눈물", "슬퍼", "돈", "값", "망"] },
+          { id: "08_angry", label: "버럭", kw: ["화", "짜증", "열받", "최악"] },
+          { id: "09_think", label: "고민", kw: ["줄 알았", "왜", "고민", "궁금", "음"] },
+          { id: "10_thumbsup", label: "강추", kw: ["강추", "최고", "무조건", "좋아", "잡히"] },
+          { id: "11_nope", label: "비추X", kw: ["절대", "안 돼", "금지", "끊", "비추", "안 됨"] },
+          { id: "12_love", label: "하트", kw: ["사랑", "최애", "반함", "인생템", "정착"] },
+          { id: "13_faint", label: "기절", kw: ["기절", "피곤", "지침", "쓰러"] },
+          { id: "14_phone", label: "크림", kw: ["크림", "세럼", "바르", "보습"] },
+          { id: "15_shy", label: "커피", kw: ["아아", "커피", "다행", "여유"] },
+          { id: "16_cheer", label: "만세", kw: ["성공", "해결", "완성", "기억"] }
+        ]
+      }
+    };
 
-    const poseImgs = {};
-    let loadedCount = 0;
-    POSES.forEach(p => {
-      const img = new Image();
-      img.onload = () => { loadedCount++; if (loadedCount === POSES.length) renderAll(); };
-      img.src = `./chars_v5/${p.id}.png`;
-      poseImgs[p.id] = img;
+    let currentSet = "raw";
+    const poseCache = { raw: {}, cute: {} };
+    Object.keys(SETS).forEach(key => {
+      SETS[key].poses.forEach(p => {
+        const img = new Image();
+        img.onload = () => { if (key === currentSet) renderAll(); };
+        img.src = `${SETS[key].dir}/${p.id}.png`;
+        poseCache[key][p.id] = img;
+      });
     });
 
     let bgColor = "#FAF8F3";
+    let globalBgImg = null;
     let cuts = [];
 
     function pickPose(text, idx) {
-      for (const p of POSES) {
+      const poses = SETS[currentSet].poses;
+      for (const p of poses) {
         if (p.kw.some(k => text.includes(k))) return p.id;
       }
-      if (idx === 0) return "02";
-      return POSES[idx % POSES.length].id;
+      return poses[idx % poses.length].id;
     }
 
     function parseBulk() {
       const raw = document.getElementById("bulkScript").value.trim();
       const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
       cuts = lines.map((line, idx) => ({
-        title: idx === 0 ? "오늘의 컷툰" : "",
         speech: line,
         pose: pickPose(line, idx),
-        extraImg: null
+        extraImg: null,
+        bgImg: null
       }));
       renderAll();
     }
@@ -188,21 +226,30 @@
       ctx.closePath();
     }
 
+    function drawCoverImage(ctx, img, W, H) {
+      const ir = img.width / img.height;
+      const cr = W / H;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (ir > cr) { sw = img.height * cr; sx = (img.width - sw) / 2; }
+      else { sh = img.width / cr; sy = (img.height - sh) / 2; }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+    }
+
     function drawCut(canvas, cut, idx) {
       const W = 1080, H = 1350;
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext("2d");
 
-      // Background
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, W, H);
 
-      // Subtle frame
+      const bgToUse = cut.bgImg || globalBgImg;
+      if (bgToUse) drawCoverImage(ctx, bgToUse, W, H);
+
       ctx.strokeStyle = "#222222";
       ctx.lineWidth = 6;
       ctx.strokeRect(28, 28, W - 56, H - 56);
 
-      // Cut number & watermark
       const wm = document.getElementById("watermarkInput").value.trim();
       ctx.fillStyle = "#888";
       ctx.font = "700 28px -apple-system, BlinkMacSystemFont, sans-serif";
@@ -213,7 +260,6 @@
         ctx.textAlign = "left";
       }
 
-      // Speech bubble
       ctx.font = "800 46px -apple-system, BlinkMacSystemFont, sans-serif";
       const lines = wrapLines(ctx, cut.speech, W - 220);
       const lineH = 66;
@@ -227,7 +273,6 @@
       ctx.strokeStyle = "#18181b";
       ctx.stroke();
 
-      // Bubble tail
       ctx.beginPath();
       ctx.moveTo(W * 0.52, boxY + boxH - 2);
       ctx.lineTo(W * 0.48, boxY + boxH + 54);
@@ -238,7 +283,6 @@
       ctx.stroke();
       ctx.fillRect(W * 0.51, boxY + boxH - 8, W * 0.10, 12);
 
-      // Speech text
       ctx.fillStyle = "#18181b";
       ctx.textAlign = "center";
       const startY = boxY + (boxH - lines.length * lineH) / 2 + 48;
@@ -247,7 +291,6 @@
       });
       ctx.textAlign = "left";
 
-      // Extra photo if attached
       if (cut.extraImg) {
         const pw = 340, ph = 340;
         ctx.save();
@@ -261,8 +304,7 @@
         ctx.stroke();
       }
 
-      // Character sprite
-      const sprite = poseImgs[cut.pose];
+      const sprite = poseCache[currentSet][cut.pose];
       if (sprite && sprite.complete) {
         const maxH = H - (boxY + boxH + 110);
         const ratio = sprite.width / sprite.height;
@@ -277,6 +319,9 @@
     function renderAll() {
       const grid = document.getElementById("cutsGrid");
       grid.innerHTML = "";
+      const poses = SETS[currentSet].poses;
+      const dir = SETS[currentSet].dir;
+
       cuts.forEach((cut, idx) => {
         const card = document.createElement("div");
         card.className = "cut-card";
@@ -286,11 +331,11 @@
 
         const strip = document.createElement("div");
         strip.className = "pose-strip";
-        POSES.forEach(p => {
+        poses.forEach(p => {
           const b = document.createElement("button");
           b.className = "pose-btn" + (cut.pose === p.id ? " active" : "");
           b.title = p.label;
-          b.innerHTML = `<img src="./chars_v5/${p.id}.png" alt="${p.label}" />`;
+          b.innerHTML = `<img src="${dir}/${p.id}.png" alt="${p.label}" />`;
           b.onclick = () => { cut.pose = p.id; renderAll(); };
           strip.appendChild(b);
         });
@@ -308,25 +353,34 @@
         row.style.marginTop = "0";
 
         const fileInp = document.createElement("input");
-        fileInp.type = "file";
-        fileInp.accept = "image/*";
-        fileInp.style.display = "none";
+        fileInp.type = "file"; fileInp.accept = "image/*"; fileInp.style.display = "none";
         fileInp.onchange = (e) => {
-          const f = e.target.files[0];
-          if (!f) return;
+          const f = e.target.files[0]; if (!f) return;
           const img = new Image();
           img.onload = () => { cut.extraImg = img; drawCut(canvas, cut, idx); };
           img.src = URL.createObjectURL(f);
         };
-
         const photoBtn = document.createElement("button");
         photoBtn.className = "btn";
-        photoBtn.textContent = cut.extraImg ? "사진 변경" : "+ 사진 첨부";
+        photoBtn.textContent = cut.extraImg ? "소품사진 변경" : "+ 소품사진";
         photoBtn.onclick = () => fileInp.click();
+
+        const bgInp = document.createElement("input");
+        bgInp.type = "file"; bgInp.accept = "image/*"; bgInp.style.display = "none";
+        bgInp.onchange = (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          const img = new Image();
+          img.onload = () => { cut.bgImg = img; drawCut(canvas, cut, idx); };
+          img.src = URL.createObjectURL(f);
+        };
+        const bgBtn = document.createElement("button");
+        bgBtn.className = "btn";
+        bgBtn.textContent = cut.bgImg ? "이 컷 배경 변경" : "+ 이 컷 배경";
+        bgBtn.onclick = () => bgInp.click();
 
         const saveBtn = document.createElement("button");
         saveBtn.className = "btn primary";
-        saveBtn.textContent = "이 컷 저장";
+        saveBtn.textContent = "저장";
         saveBtn.onclick = () => {
           const a = document.createElement("a");
           a.download = `instatoon_cut_${idx + 1}.png`;
@@ -339,7 +393,7 @@
         delBtn.textContent = "삭제";
         delBtn.onclick = () => { cuts.splice(idx, 1); renderAll(); };
 
-        row.append(fileInp, photoBtn, saveBtn, delBtn);
+        row.append(fileInp, photoBtn, bgInp, bgBtn, saveBtn, delBtn);
         card.appendChild(row);
         grid.appendChild(card);
 
@@ -347,9 +401,36 @@
       });
     }
 
+    function switchSet(nextSet) {
+      currentSet = nextSet;
+      document.getElementById("setRawBtn").classList.toggle("active-set", nextSet === "raw");
+      document.getElementById("setCuteBtn").classList.toggle("active-set", nextSet === "cute");
+      cuts.forEach((c, idx) => { c.pose = pickPose(c.speech, idx); });
+      renderAll();
+    }
+
+    document.getElementById("setRawBtn").onclick = () => switchSet("raw");
+    document.getElementById("setCuteBtn").onclick = () => switchSet("cute");
+    document.getElementById("globalBgBtn").onclick = () => document.getElementById("globalBgInput").click();
+    document.getElementById("globalBgInput").onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const img = new Image();
+      img.onload = () => {
+        globalBgImg = img;
+        document.getElementById("clearGlobalBgBtn").style.display = "inline-block";
+        renderAll();
+      };
+      img.src = URL.createObjectURL(f);
+    };
+    document.getElementById("clearGlobalBgBtn").onclick = () => {
+      globalBgImg = null;
+      document.getElementById("clearGlobalBgBtn").style.display = "none";
+      renderAll();
+    };
+
     document.getElementById("generateBtn").onclick = parseBulk;
     document.getElementById("addCutBtn").onclick = () => {
-      cuts.push({ speech: "새 컷 대사를 입력하세요!", pose: "01", extraImg: null });
+      cuts.push({ speech: "새 컷 대사를 입력하세요!", pose: SETS[currentSet].poses[0].id, extraImg: null, bgImg: null });
       renderAll();
     };
     document.getElementById("watermarkInput").oninput = () => renderAll();
