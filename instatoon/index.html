@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인스타툰 자동 생성기 · 16표정 스튜디오</title>
+  <style>
+    :root {
+      --bg: #f6f5f0;
+      --surface: #ffffff;
+      --border: #e5e2d9;
+      --text: #18181b;
+      --muted: #6b7280;
+      --accent: #18181b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 18px 14px 64px; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 10px; margin-bottom: 16px;
+    }
+    h1 { margin: 0; font-size: 21px; font-weight: 800; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; margin-bottom: 16px;
+    }
+    .panel-title { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+    textarea {
+      width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--border);
+      border-radius: 12px; font-size: 13px; font-family: inherit; resize: vertical; background: #fafaf8;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    input[type="text"] {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px;
+    }
+    .bg-dot {
+      width: 26px; height: 26px; border-radius: 999px; border: 2px solid var(--border); cursor: pointer;
+    }
+    .bg-dot.active { border-color: #18181b; transform: scale(1.1); }
+
+    .cuts-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;
+    }
+    .cut-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .cut-card canvas {
+      width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); background: #fff;
+    }
+    .pose-strip {
+      display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px;
+    }
+    .pose-btn {
+      flex: 0 0 auto; width: 46px; height: 46px; padding: 2px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: #fff; cursor: pointer;
+    }
+    .pose-btn.active { border-color: #18181b; background: #f3f4f6; }
+    .pose-btn img { width: 100%; height: 100%; object-fit: contain; }
+    .cut-input {
+      width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 10px;
+      font-size: 13px; font-family: inherit;
+    }
+    @media (max-width: 640px) { .cuts-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>🎨 인스타툰 자동 생성기</h1>
+        <div class="sub">대본 붙여넣기 → 16가지 표정 자동 매칭 → 1080×1350 이미지 저장</div>
+      </div>
+      <a href="../" class="btn" style="text-decoration:none;">← 릴스·쇼츠 레이더</a>
+    </header>
+
+    <div class="panel">
+      <div class="panel-title">1. 대본 한 번에 붙여넣기 (줄바꿈 1줄 = 1컷, 또는 빈 줄로 컷 구분)</div>
+      <textarea id="bulkScript">피부과 말고 집에서 모공 줄이는 줄 알았는데...
+매일 닦토·스킨팩 하다가 모공 더 넓어진 사람 손!!
+솔직히 피부 겉만 불리면 피지 더 뿜고 절대 안 줄어요.
+속탄력·진피부터 채워야 세로 모공이 잡히는 거예요!
+아아... 내 3개월 치 화장품 값 어쩔 거야 ㅜㅜ
+이제부터 닦토 끊고 딱 이것만 기억하세요!</textarea>
+      <div class="row">
+        <button class="btn primary" id="generateBtn">✨ 대본으로 컷 자동 생성</button>
+        <button class="btn" id="addCutBtn">+ 빈 컷 추가</button>
+        <button class="btn primary" id="downloadAllBtn">📥 전체 컷 한 번에 저장</button>
+        <input type="text" id="watermarkInput" value="@morr___ii" placeholder="계정명 (선택)" style="width:130px;" />
+        <div style="display:flex; gap:6px; align-items:center; margin-left:auto;">
+          <span style="font-size:12px; color:var(--muted);">배경:</span>
+          <div class="bg-dot active" data-bg="#FAF8F3" style="background:#FAF8F3;"></div>
+          <div class="bg-dot" data-bg="#FFFFFF" style="background:#FFFFFF;"></div>
+          <div class="bg-dot" data-bg="#FDF2F4" style="background:#FDF2F4;"></div>
+          <div class="bg-dot" data-bg="#F0F6FA" style="background:#F0F6FA;"></div>
+          <div class="bg-dot" data-bg="#FEFCE8" style="background:#FEFCE8;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cuts-grid" id="cutsGrid"></div>
+  </div>
+
+  <script>
+    const POSES = [
+      { id: "01_wave", label: "인사", kw: ["안녕", "시작", "반가", "소개"] },
+      { id: "02_point", label: "강조", kw: ["기억", "핵심", "포인트", "이것만", "진짜", "사실"] },
+      { id: "03_deadpan", label: "정색", kw: ["솔직히", "근데", "팩트", "현실"] },
+      { id: "04_sweat", label: "당황", kw: ["어쩔", "큰일", "당황", "실수", "헉"] },
+      { id: "05_shock", label: "충격", kw: ["손!!", "충격", "대박", "세상에", "미쳤"] },
+      { id: "06_wink", label: "윙크", kw: ["꿀팁", "추천", "완벽", "괜찮"] },
+      { id: "07_cry", label: "오열", kw: ["ㅜㅜ", "ㅠㅠ", "눈물", "슬퍼", "돈", "값", "망"] },
+      { id: "08_angry", label: "버럭", kw: ["화", "짜증", "열받", "최악"] },
+      { id: "09_think", label: "고민", kw: ["줄 알았", "왜", "고민", "궁금", "음..."] },
+      { id: "10_thumbsup", label: "강추", kw: ["강추", "최고", "무조건", "좋아", "잡히"] },
+      { id: "11_nope", label: "비추X", kw: ["절대", "안 돼", "금지", "끊", "비추", "안 됨"] },
+      { id: "12_love", label: "하트", kw: ["사랑", "최애", "반함", "예쁘"] },
+      { id: "13_faint", label: "기절", kw: ["기절", "피곤", "지침", "쓰러"] },
+      { id: "14_phone", label: "폰보기", kw: ["폰", "인스타", "검색", "릴스", "댓글"] },
+      { id: "15_shy", label: "만족", kw: ["뿌듯", "다행", "히히", "감사"] },
+      { id: "16_cheer", label: "만세", kw: ["성공", "해결", "완성", "끝!"] }
+    ];
+
+    const poseImgs = {};
+    let loadedCount = 0;
+    POSES.forEach(p => {
+      const img = new Image();
+      img.onload = () => { loadedCount++; if (loadedCount === POSES.length) renderAll(); };
+      img.src = `./chars/${p.id}.png`;
+      poseImgs[p.id] = img;
+    });
+
+    let bgColor = "#FAF8F3";
+    let cuts = [];
+
+    function pickPose(text, idx) {
+      for (const p of POSES) {
+        if (p.kw.some(k => text.includes(k))) return p.id;
+      }
+      if (idx === 0) return "09_think";
+      return POSES[idx % POSES.length].id;
+    }
+
+    function parseBulk() {
+      const raw = document.getElementById("bulkScript").value.trim();
+      const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
+      cuts = lines.map((line, idx) => ({
+        title: idx === 0 ? "오늘의 컷툰" : "",
+        speech: line,
+        pose: pickPose(line, idx),
+        extraImg: null
+      }));
+      renderAll();
+    }
+
+    function wrapLines(ctx, text, maxWidth) {
+      const words = text.split("");
+      const lines = [];
+      let cur = "";
+      for (const ch of words) {
+        if (ch === "\n") { lines.push(cur); cur = ""; continue; }
+        const test = cur + ch;
+        if (ctx.measureText(test).width > maxWidth && cur.length > 0) {
+          lines.push(cur);
+          cur = ch;
+        } else {
+          cur = test;
+        }
+      }
+      if (cur) lines.push(cur);
+      return lines;
+    }
+
+    function drawRoundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function drawCut(canvas, cut, idx) {
+      const W = 1080, H = 1350;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      // Background
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle frame
+      ctx.strokeStyle = "#222222";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(28, 28, W - 56, H - 56);
+
+      // Cut number & watermark
+      const wm = document.getElementById("watermarkInput").value.trim();
+      ctx.fillStyle = "#888";
+      ctx.font = "700 28px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(`#${idx + 1}`, 62, 82);
+      if (wm) {
+        ctx.textAlign = "right";
+        ctx.fillText(wm, W - 62, H - 56);
+        ctx.textAlign = "left";
+      }
+
+      // Speech bubble
+      ctx.font = "800 46px -apple-system, BlinkMacSystemFont, sans-serif";
+      const lines = wrapLines(ctx, cut.speech, W - 220);
+      const lineH = 66;
+      const boxH = Math.max(180, lines.length * lineH + 88);
+      const boxX = 78, boxY = 120, boxW = W - 156;
+
+      ctx.fillStyle = "#FFFFFF";
+      drawRoundRect(ctx, boxX, boxY, boxW, boxH, 44);
+      ctx.fill();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#18181b";
+      ctx.stroke();
+
+      // Bubble tail
+      ctx.beginPath();
+      ctx.moveTo(W * 0.52, boxY + boxH - 2);
+      ctx.lineTo(W * 0.48, boxY + boxH + 54);
+      ctx.lineTo(W * 0.60, boxY + boxH - 2);
+      ctx.closePath();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillRect(W * 0.51, boxY + boxH - 8, W * 0.10, 12);
+
+      // Speech text
+      ctx.fillStyle = "#18181b";
+      ctx.textAlign = "center";
+      const startY = boxY + (boxH - lines.length * lineH) / 2 + 48;
+      lines.forEach((ln, i) => {
+        ctx.fillText(ln, W / 2, startY + i * lineH);
+      });
+      ctx.textAlign = "left";
+
+      // Extra photo if attached
+      if (cut.extraImg) {
+        const pw = 340, ph = 340;
+        ctx.save();
+        drawRoundRect(ctx, 84, boxY + boxH + 90, pw, ph, 24);
+        ctx.clip();
+        ctx.drawImage(cut.extraImg, 84, boxY + boxH + 90, pw, ph);
+        ctx.restore();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#18181b";
+        drawRoundRect(ctx, 84, boxY + boxH + 90, pw, ph, 24);
+        ctx.stroke();
+      }
+
+      // Character sprite
+      const sprite = poseImgs[cut.pose];
+      if (sprite && sprite.complete) {
+        const maxH = H - (boxY + boxH + 110);
+        const ratio = sprite.width / sprite.height;
+        const ch = Math.min(620, maxH);
+        const cw = ch * ratio;
+        const cx = cut.extraImg ? W - cw - 80 : (W - cw) / 2;
+        const cy = H - ch - 90;
+        ctx.drawImage(sprite, cx, cy, cw, ch);
+      }
+    }
+
+    function renderAll() {
+      const grid = document.getElementById("cutsGrid");
+      grid.innerHTML = "";
+      cuts.forEach((cut, idx) => {
+        const card = document.createElement("div");
+        card.className = "cut-card";
+
+        const canvas = document.createElement("canvas");
+        card.appendChild(canvas);
+
+        const strip = document.createElement("div");
+        strip.className = "pose-strip";
+        POSES.forEach(p => {
+          const b = document.createElement("button");
+          b.className = "pose-btn" + (cut.pose === p.id ? " active" : "");
+          b.title = p.label;
+          b.innerHTML = `<img src="./chars/${p.id}.png" alt="${p.label}" />`;
+          b.onclick = () => { cut.pose = p.id; renderAll(); };
+          strip.appendChild(b);
+        });
+        card.appendChild(strip);
+
+        const inp = document.createElement("textarea");
+        inp.className = "cut-input";
+        inp.style.minHeight = "64px";
+        inp.value = cut.speech;
+        inp.oninput = (e) => { cut.speech = e.target.value; drawCut(canvas, cut, idx); };
+        card.appendChild(inp);
+
+        const row = document.createElement("div");
+        row.className = "row";
+        row.style.marginTop = "0";
+
+        const fileInp = document.createElement("input");
+        fileInp.type = "file";
+        fileInp.accept = "image/*";
+        fileInp.style.display = "none";
+        fileInp.onchange = (e) => {
+          const f = e.target.files[0];
+          if (!f) return;
+          const img = new Image();
+          img.onload = () => { cut.extraImg = img; drawCut(canvas, cut, idx); };
+          img.src = URL.createObjectURL(f);
+        };
+
+        const photoBtn = document.createElement("button");
+        photoBtn.className = "btn";
+        photoBtn.textContent = cut.extraImg ? "사진 변경" : "+ 사진 첨부";
+        photoBtn.onclick = () => fileInp.click();
+
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "btn primary";
+        saveBtn.textContent = "이 컷 저장";
+        saveBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.download = `instatoon_cut_${idx + 1}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn";
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => { cuts.splice(idx, 1); renderAll(); };
+
+        row.append(fileInp, photoBtn, saveBtn, delBtn);
+        card.appendChild(row);
+        grid.appendChild(card);
+
+        drawCut(canvas, cut, idx);
+      });
+    }
+
+    document.getElementById("generateBtn").onclick = parseBulk;
+    document.getElementById("addCutBtn").onclick = () => {
+      cuts.push({ speech: "새 컷 대사를 입력하세요!", pose: "01_wave", extraImg: null });
+      renderAll();
+    };
+    document.getElementById("watermarkInput").oninput = () => renderAll();
+    document.querySelectorAll(".bg-dot").forEach(dot => {
+      dot.onclick = () => {
+        document.querySelectorAll(".bg-dot").forEach(d => d.classList.remove("active"));
+        dot.classList.add("active");
+        bgColor = dot.dataset.bg;
+        renderAll();
+      };
+    });
+    document.getElementById("downloadAllBtn").onclick = () => {
+      document.querySelectorAll(".cut-card canvas").forEach((c, i) => {
+        setTimeout(() => {
+          const a = document.createElement("a");
+          a.download = `instatoon_cut_${i + 1}.png`;
+          a.href = c.toDataURL("image/png");
+          a.click();
+        }, i * 250);
+      });
+    };
+
+    parseBulk();
+  </script>
+</body>
+</html>
