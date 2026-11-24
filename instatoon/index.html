@@ -116,22 +116,16 @@
 
   <script>
     const POSES = [
-      { id: "01_wave", label: "인사", kw: ["안녕", "시작", "반가", "소개"] },
-      { id: "02_point", label: "강조", kw: ["기억", "핵심", "포인트", "이것만", "진짜", "사실"] },
-      { id: "03_deadpan", label: "정색", kw: ["솔직히", "근데", "팩트", "현실"] },
-      { id: "04_sweat", label: "당황", kw: ["어쩔", "큰일", "당황", "실수", "헉"] },
-      { id: "05_shock", label: "충격", kw: ["손!!", "충격", "대박", "세상에", "미쳤"] },
-      { id: "06_wink", label: "윙크", kw: ["꿀팁", "추천", "완벽", "괜찮"] },
-      { id: "07_cry", label: "오열", kw: ["ㅜㅜ", "ㅠㅠ", "눈물", "슬퍼", "돈", "값", "망"] },
-      { id: "08_angry", label: "버럭", kw: ["화", "짜증", "열받", "최악"] },
-      { id: "09_think", label: "고민", kw: ["줄 알았", "왜", "고민", "궁금", "음..."] },
-      { id: "10_thumbsup", label: "강추", kw: ["강추", "최고", "무조건", "좋아", "잡히"] },
-      { id: "11_nope", label: "비추X", kw: ["절대", "안 돼", "금지", "끊", "비추", "안 됨"] },
-      { id: "12_love", label: "하트", kw: ["사랑", "최애", "반함", "예쁘"] },
-      { id: "13_faint", label: "기절", kw: ["기절", "피곤", "지침", "쓰러"] },
-      { id: "14_phone", label: "폰보기", kw: ["폰", "인스타", "검색", "릴스", "댓글"] },
-      { id: "15_shy", label: "만족", kw: ["뿌듯", "다행", "히히", "감사"] },
-      { id: "16_cheer", label: "만세", kw: ["성공", "해결", "완성", "끝!"] }
+      { id: "01", label: "폰음흉", kw: ["폰", "인스타", "릴스", "검색", "몰래"] },
+      { id: "02", label: "코파기", kw: ["음", "고민", "왜", "글쎄", "근데", "줄 알았"] },
+      { id: "03", label: "커피멍", kw: ["아아", "커피", "현실", "피곤", "일상", "솔직히"] },
+      { id: "04", label: "쭈글오열", kw: ["ㅜ", "ㅠ", "눈물", "슬퍼", "돈", "값", "망", "어쩔"] },
+      { id: "05", label: "삿대질", kw: ["진짜", "이거", "핵심", "기억", "바로", "딱", "손!!"] },
+      { id: "06", label: "능글엄지", kw: ["강추", "최고", "추천", "꿀템", "좋아", "무조건", "잡히"] },
+      { id: "07", label: "팔짱NO", kw: ["절대", "안 돼", "안됨", "금지", "비추", "끊", "최악"] },
+      { id: "08", label: "충격헉", kw: ["헉", "헐", "충격", "대박", "세상에", "미쳤"] },
+      { id: "09", label: "기절뻗음", kw: ["기절", "지침", "쓰러", "탈진", "힘들"] },
+      { id: "10", label: "화장품하트", kw: ["사랑", "최애", "반함", "인생템", "정착", "크림", "세럼"] }
     ];
 
     const poseImgs = {};
@@ -139,7 +133,7 @@
     POSES.forEach(p => {
       const img = new Image();
       img.onload = () => { loadedCount++; if (loadedCount === POSES.length) renderAll(); };
-      img.src = `./chars/${p.id}.png`;
+      img.src = `./chars_v5/${p.id}.png`;
       poseImgs[p.id] = img;
     });
 
@@ -150,7 +144,7 @@
       for (const p of POSES) {
         if (p.kw.some(k => text.includes(k))) return p.id;
       }
-      if (idx === 0) return "09_think";
+      if (idx === 0) return "02";
       return POSES[idx % POSES.length].id;
     }
 
@@ -296,7 +290,7 @@
           const b = document.createElement("button");
           b.className = "pose-btn" + (cut.pose === p.id ? " active" : "");
           b.title = p.label;
-          b.innerHTML = `<img src="./chars/${p.id}.png" alt="${p.label}" />`;
+          b.innerHTML = `<img src="./chars_v5/${p.id}.png" alt="${p.label}" />`;
           b.onclick = () => { cut.pose = p.id; renderAll(); };
           strip.appendChild(b);
         });
@@ -355,7 +349,7 @@
 
     document.getElementById("generateBtn").onclick = parseBulk;
     document.getElementById("addCutBtn").onclick = () => {
-      cuts.push({ speech: "새 컷 대사를 입력하세요!", pose: "01_wave", extraImg: null });
+      cuts.push({ speech: "새 컷 대사를 입력하세요!", pose: "01", extraImg: null });
       renderAll();
     };
     document.getElementById("watermarkInput").oninput = () => renderAll();
