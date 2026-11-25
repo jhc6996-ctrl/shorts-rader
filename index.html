@@ -220,6 +220,7 @@
     .badge.outlier { background: #18181b; color: #fff; }
     .badge.solo-ok { background: var(--ok-bg); color: var(--ok-text); }
     .badge.solo-edit { background: var(--warn-bg); color: var(--warn-text); }
+    .badge.muted { background: var(--surface-soft); color: var(--muted); }
 
     .card-title {
       margin: 0;
@@ -309,77 +310,83 @@
       </div>
     </div>
     <div style="font-size:12px; color:var(--muted); margin:-6px 0 14px 4px;">
-      ※ 현재는 레이아웃 예시 상태예요. 오늘 뮤즈(CMD-11) 수집이 들어오면 최근 7~14일 실제 터진 영상 + 썸네일로 교체됩니다.
+      2026-11-25 업데이트 · 실제 수집 영상 3건 반영 (피부·미용 2건 · 육아·생활 1건) — 새로 터진 영상은 뮤즈 수집분으로 계속 채웁니다.
     </div>
 
     <div class="grid" id="cardGrid"></div>
   </div>
 
   <script>
-    // youtubeId가 있으면 페이지 안에서 바로 영상 재생, 인스타 릴스는 공식 임베드/바로 열기 카드
+    // youtubeId가 있으면 페이지 안에서 바로 영상 재생, 인스타 릴스는 공식 임베드로 재생 (실패 시 아래 '원본 열기' 링크)
     const ITEMS = [
       {
         id: 1,
         category: "beauty",
-        platform: "insta",
-        account: "@dr.moonjieun",
-        title: "필러 녹이면 몸도 같이 녹는 이유 (레퍼런스 샘플)",
-        views: "공유 1만+",
-        followers: "피부과 원장",
-        outlier: 12.0,
-        date: "최근 샘플",
+        platform: "youtube",
+        account: "@MEKNOWW",
+        title: "여섯 개 중 내 피부색이랑 가장 비슷한 건 몇 번?",
+        views: "조회수 71.3만",
+        date: "11-20 게시",
+        badge: "구독자 대비 약 14배",
         solo: "ok",
-        soloLabel: "혼자 촬영 ⭕ (정면 토크)",
-        url: "https://www.instagram.com/dr.moonjieun/",
-        hook: "필러 녹이면 몸도 같이 녹는 이유 — '필러라는 게 히알루론산이라는 건데'",
-        original: "필러라는 게 히알루론산이라는 건데, 녹이는 주사를 맞으면 내 살까지 녹는다고 걱정하시죠? 실제로 녹이는 성분은 히알루론산만 분해하는 효소라 내 피부 조직을 녹이진 않아요. 다만 과하게 들어갔던 볼륨이 빠지면서 원래 처졌던 피부가 드러나 보일 뿐입니다.",
-        adapt: "[0~3초 후킹]\n필러 녹이면 내 살도 같이 녹는다고 걱정하시죠?\n결론부터 말하면 살이 녹는 건 절대 아닙니다.\n\n[4~20초 본문]\n녹이는 주사는 히알루론산만 골라서 분해하는 효소예요.\n그런데도 '얼굴이 더 푹 꺼졌다'고 느끼는 이유는, 그동안 필러가 버티고 있던 자리가 빠지면서 원래 탄력 떨어졌던 피부가 그대로 보이기 때문이에요.\n\n[21~32초 마무리]\n그래서 녹인 뒤에는 바로 다시 채우기보다, 피부 탄력부터 채워놓아야 모양이 예쁘게 잡힙니다."
+        soloLabel: "혼자 촬영 ⭕ (자막 퀴즈형)",
+        youtubeId: "i-xvgTcUaHM",
+        url: "https://www.youtube.com/shorts/i-xvgTcUaHM",
+        hook: "\"여섯 개 중에 내 피부색이랑 가장 비슷한 거, 몇 번이에요?\"",
+        original: "6가지 손 그림 중 자기 피부색과 가장 비슷한 번호를 고르는 6초 퀴즈 밈.",
+        adapt: "파운데이션 사러 갔다가 21호 23호 앞에서 10분 고민한 적 있죠? 사실 호수 고르기 전에 내 피부톤부터 알아야 해요.\n\n손목 안쪽을 보세요. 혈관이 파랗게 보이면 쿨톤, 초록빛이면 웜톤이에요. 웜톤인데 쿨톤 파데 바르면 얼굴만 동동 뜨거든요.\n\n오늘 손목 혈관 색깔 확인하고 댓글에 웜톤인지 쿨톤인지 남겨보세요. 다음 영상에서 톤별 파데 고르는 법 알려드릴게요."
       },
       {
         id: 2,
         category: "beauty",
-        platform: "youtube",
-        account: "피부/리프팅 쇼츠",
-        title: "써마지 vs 포텐자 돈 아끼는 선택 기준 1가지",
-        views: "31.5만",
-        followers: "2.1만",
-        outlier: 15.0,
-        date: "3일 전",
+        platform: "insta",
+        account: "인스타 릴스",
+        title: "내 얼굴 고민에 맞는 괄사 마사지",
+        views: "좋아요 1,665",
+        followers: "팔로워 3.98만",
+        date: "11-15 게시",
+        badge: "조회수 미확인",
+        badgeKind: "muted",
         solo: "ok",
-        soloLabel: "혼자 촬영 ⭕ (정면 비교)",
-        youtubeId: "",
-        url: "https://www.youtube.com/shorts",
-        hook: "비싼 리프팅 100만 원 넘게 내고 효과 못 본 분들 특징이 딱 하나 있어요.",
-        original: "써마지 포텐자 뭐가 더 좋냐고 많이 물어보시는데, 얼굴 살 없는 분이 잘못 받으면 볼 패임 옵니다. 탄력인지 모공인지만 구분해서 고르세요.",
-        adapt: "[0~3초 후킹]\n비싼 리프팅 받고도 '나는 왜 효과 없지?' 하시는 분들, 원인이 딱 하나예요.\n\n[4~20초 본문]\n피부가 얇고 탄력이 빠진 얼굴에 탄력 장비랑 지방 빼는 장비를 거꾸로 넣은 경우예요.\n얼굴 살이 없는데 볼살 꺼지는 쪽을 건드리면 오히려 퀭해 보이고요.\n반대로 모공·홍조가 고민이면 고주파 니들 쪽이 훨씬 가성비 좋습니다.\n\n[21~30초 마무리]\n'요즘 유행하는 기계' 말고 내 피부 두께부터 보고 고르셔야 돈 안 버려요."
+        soloLabel: "혼자 촬영 ⭕ (셀프 실연)",
+        instaEmbed: "https://www.instagram.com/reel/DfwgSZDzStf/embed",
+        url: "https://www.instagram.com/reel/DfwgSZDzStf/",
+        hook: "\"턱이 뻐근하고 얼굴이 부었을 때, 귀 뒤부터 풀어보세요.\"",
+        original: "빗살 모양 괄사 도구로 귀 뒤·턱선·목덜미를 쓸어내리는 셀프 마사지 + 유양돌기·턱관절 근육 해부 그림 오버레이 및 전후 비교.",
+        adapt: "아침에 얼굴 부어서 거울 보고 한숨 쉬신 분들, 귀 뒤부터 풀어보세요.\n\n턱관절 주변 근육이 뭉치면 림프가 막혀서 얼굴이 붓고 턱선도 무뎌져요. 귀 뒤 움푹한 곳부터 턱선 따라 쇄골 쪽으로 가볍게 쓸어내리면 됩니다.\n\n단, 턱에서 딱 소리 나거나 통증 있으면 세게 누르지 말고 멈추세요. 그건 마사지로 풀 문제가 아니에요."
       },
       {
         id: 3,
         category: "parenting",
-        platform: "insta",
-        account: "6개월 육아 릴스",
-        title: "6개월 아기 밤잠 통잠 끊기는 진짜 이유 1가지",
-        views: "41.2만",
-        followers: "3.1만",
-        outlier: 13.3,
-        date: "2일 전",
-        solo: "ok",
-        soloLabel: "혼자 촬영 ⭕ (배경+자막)",
-        url: "https://www.instagram.com/",
-        hook: "잘 자던 아기가 6개월 되자마자 새벽 2시에 깨기 시작했다면 이앓이 말고 이것부터 보세요.",
-        original: "6개월 아기 통잠 깨는 이유, 낮잠 3번에서 2번 넘어가는 시기라 막잠 시간이 너무 늦으면 새벽에 깹니다. 막잠 4시 반 전에 깨워보세요.",
-        adapt: "[0~3초 후킹]\n잘 자던 아기가 6개월쯤 갑자기 새벽마다 깨면 다들 이앓이라고 생각하죠?\n\n[4~20초 본문]\n사실 낮잠 3번에서 2번으로 넘어가는 과도기라 총 수면 시간이 안 맞아서 그래요.\n마지막 낮잠을 5시 이후까지 자면 밤잠 압력이 떨어져서 새벽에 말똥말똥 깨거든요.\n\n[21~30초 마무리]\n막잠 기상 시간만 오후 4시 반 전으로 당겨보세요. 새벽 기상 확 줄어듭니다."
+        platform: "youtube",
+        account: "@giyogiyomimi",
+        title: "100만명이 감탄한 엄마의 교육법",
+        views: "조회수 75.9만",
+        date: "11-21 게시",
+        badge: "구독자 대비 약 7.8배",
+        solo: "edit",
+        soloLabel: "🟡 아기 뒷모습 출연 또는 대체 가능",
+        youtubeId: "w4JW3kwhS2o",
+        url: "https://www.youtube.com/shorts/w4JW3kwhS2o",
+        hook: "\"책만 펴면 1분 만에 잠드는 쌍둥이, 비결은 조기교육이 아닙니다.\"",
+        original: "침대에 나란히 앉아 책을 펼치고 옹알이로 '독서'하던 쌍둥이가 차례로 잠드는 영상. 반전은 교육법이 아니라 책 읽는 루틴이 수면 신호가 된 것.",
+        adapt: "잘 자던 아기가 갑자기 밤에 자주 깨면 다들 뭘 바꿔야 하나 고민하죠?\n\n사실 아기는 '이제 잘 시간'이라는 신호를 루틴으로 기억해요. 매일 같은 시간, 같은 책 한 권, 같은 자장가. 책 내용이 중요한 게 아니라 반복되는 순서가 수면 스위치예요.\n\n오늘부터 잠들기 전 책 한 권만 고정해보세요. 6개월 아기 낮잠 루틴이랑 같이 잡으면 밤잠이 훨씬 안정돼요."
       }
     ];
 
     let state = { category: "beauty", platform: "all", soloOnly: false, query: "" };
     const grid = document.getElementById("cardGrid");
 
+    // 클릭하면 그 자리에서 원본 영상 재생 (유튜브 임베드 · 인스타 릴스 임베드)
+    function playEmbed(el, src) {
+      el.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen scrolling="no"></iframe>`;
+    }
+
     function renderMedia(item) {
-      const thumb = item.thumbnail || (item.youtubeId ? `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg` : "");
       if (item.platform === "youtube" && item.youtubeId) {
+        const thumb = item.thumbnail || `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`;
         return `
-          <div class="media-box" onclick="this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${item.youtubeId}?autoplay=1\\' allowfullscreen></iframe>'" style="cursor:pointer;">
+          <div class="media-box" onclick="playEmbed(this, 'https://www.youtube.com/embed/${item.youtubeId}?autoplay=1')" style="cursor:pointer;">
             <img src="${thumb}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover; display:block;" />
             <div style="position:absolute; inset:0; background:rgba(0,0,0,0.28); display:flex; align-items:center; justify-content:center;">
               <div class="play-pill">▶ 쇼츠 바로 재생</div>
@@ -387,11 +394,22 @@
           </div>
         `;
       }
-      if (thumb) {
+      if (item.platform === "insta" && item.instaEmbed) {
+        return `
+          <div class="media-box" onclick="playEmbed(this, '${item.instaEmbed}')" style="cursor:pointer;">
+            <div class="media-placeholder" style="justify-content:space-between;">
+              <div style="font-size:12px; opacity:0.85;">${item.account} · ${item.date}</div>
+              <div class="play-pill">▶ 릴스 바로 재생</div>
+              <div style="font-size:13px; font-weight:700;">${item.hook}</div>
+            </div>
+          </div>
+        `;
+      }
+      if (item.thumbnail) {
         return `
           <div class="media-box">
             <a href="${item.url}" target="_blank" rel="noopener" style="display:block; width:100%; height:100%; position:relative;">
-              <img src="${thumb}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover; display:block;" />
+              <img src="${item.thumbnail}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover; display:block;" />
               <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.65), transparent 55%); display:flex; align-items:flex-end; justify-content:center; padding:14px;">
                 <div class="play-pill">▶ 원본 영상 바로 보기</div>
               </div>
@@ -428,14 +446,15 @@
           <div class="card-body">
             <div class="badge-row">
               <span class="badge ${item.platform}">${item.platform === "insta" ? "인스타 릴스" : "유튜브 쇼츠"}</span>
-              <span class="badge outlier">평균 대비 ${item.outlier}배</span>
+              ${item.badge ? `<span class="badge ${item.badgeKind || "outlier"}">${item.badge}</span>` : ""}
               <span class="badge ${item.solo === "ok" ? "solo-ok" : "solo-edit"}">${item.soloLabel}</span>
             </div>
             <h3 class="card-title">${item.title}</h3>
             <div class="meta">
               <span>${item.account}</span>
-              <span>조회수 ${item.views}</span>
-              <span>팔로워 ${item.followers}</span>
+              <span>${item.views}</span>
+              ${item.followers ? `<span>${item.followers}</span>` : ""}
+              <span>${item.date}</span>
             </div>
 
             <div class="sec-box">
