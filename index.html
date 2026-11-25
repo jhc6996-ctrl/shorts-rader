@@ -310,7 +310,7 @@
       </div>
     </div>
     <div style="font-size:12px; color:var(--muted); margin:-6px 0 14px 4px;">
-      2026-11-26 기준 · 최근 14일(11-12 ~ 11-26) 수집분 10건 · 🩺 피부·미용 5건 + 🍼 육아·생활 5건 · 미리보기 클릭하면 그 자리에서 재생돼요.
+      2026-11-26 기준 · 최근 14일(11-12 ~ 11-26) 수집분 10건 · 🩺 피부·미용 5건 + 🍼 육아·생활 5건 · 미리보기 클릭하면 그 자리에서 재생돼요 (1건은 원본 채널이 임베드를 막아 유튜브로 열립니다).
     </div>
 
     <div class="grid" id="cardGrid"></div>
@@ -449,6 +449,9 @@
             "category": "parenting",
             "platform": "youtube",
             "youtubeId": "MUU2VptHGW4",
+            "embedBlocked": true,
+            "thumbnail": "https://i.ytimg.com/vi/MUU2VptHGW4/hqdefault.jpg",
+            "mediaLabel": "▶ 유튜브에서 보기 (임베드 차단)",
             "title": "알아두면 평생 써먹는 생활 꿀팁 10가지",
             "account": "진짜꿀팁 Realtips",
             "followers": "구독자 44.6만",
@@ -509,7 +512,7 @@
     }
 
     function renderMedia(item) {
-      if (item.platform === "youtube" && item.youtubeId) {
+      if (item.platform === "youtube" && item.youtubeId && !item.embedBlocked) {
         const thumb = item.thumbnail || `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`;
         return `
           <div class="media-box" onclick="playEmbed(this, 'https://www.youtube.com/embed/${item.youtubeId}?autoplay=1')" style="cursor:pointer;">
@@ -537,7 +540,7 @@
             <a href="${item.url}" target="_blank" rel="noopener" style="display:block; width:100%; height:100%; position:relative;">
               <img src="${item.thumbnail}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover; display:block;" />
               <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.65), transparent 55%); display:flex; align-items:flex-end; justify-content:center; padding:14px;">
-                <div class="play-pill">▶ 원본 영상 바로 보기</div>
+                <div class="play-pill">${item.mediaLabel || "▶ 원본 영상 바로 보기"}</div>
               </div>
             </a>
           </div>
