@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#f6f6f3" />
+<title>블로그 홈판 키워드 & 쥬쥬체 초안 · MORI</title>
+<style>
+  :root{
+    --bg:#f6f6f3; --surface:#ffffff; --soft:#f1f0eb; --text:#18181b; --muted:#6b7280;
+    --border:#e5e4df; --line:#eeece5; --dark:#18181b;
+    --ok-bg:#ecfdf5; --ok:#047857; --warn-bg:#fffbeb; --warn:#b45309; --bad-bg:#fef2f2; --bad:#b91c1c;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text); line-height:1.55;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1180px; margin:0 auto; padding:22px 16px 80px}
+
+  /* header */
+  header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px; margin-bottom:14px}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.09em; color:var(--muted)}
+  h1{margin:3px 0 0; font-size:23px; font-weight:800; letter-spacing:-.02em}
+  .nav{display:flex; flex-wrap:wrap; gap:6px}
+  .nav a{
+    text-decoration:none; font-size:12px; font-weight:700; color:var(--muted);
+    background:var(--surface); border:1px solid var(--border); padding:7px 12px; border-radius:999px;
+  }
+  .nav a.on{background:var(--dark); color:#fff; border-color:var(--dark)}
+
+  .meta-line{display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:12px; color:var(--muted); margin-bottom:18px}
+  .dot{width:4px;height:4px;border-radius:50%;background:#c9c7bf;display:inline-block}
+
+  /* formula strip */
+  .formula{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
+  .formula div{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px;
+  }
+  .formula b{display:block; font-size:12px; letter-spacing:.02em; margin-bottom:3px}
+  .formula span{font-size:12.5px; color:var(--muted)}
+  .formula em{font-style:normal; color:#9a978e; font-weight:800; font-size:11px; letter-spacing:.08em}
+
+  /* filter */
+  .toolbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px}
+  .chip{
+    border:1px solid var(--border); background:var(--surface); color:var(--text);
+    padding:7px 13px; border-radius:999px; font-size:12.5px; font-weight:700; cursor:pointer;
+    font-family:inherit; transition:.15s;
+  }
+  .chip:hover{border-color:#cfcdc4}
+  .chip.active{background:var(--dark); color:#fff; border-color:var(--dark)}
+  .toolbar .count{margin-left:auto; font-size:12px; color:var(--muted)}
+
+  /* cards */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; margin-bottom:34px}
+  .kcard{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px; display:flex; flex-direction:column; gap:11px; transition:.18s;
+  }
+  .kcard:hover{transform:translateY(-2px); border-color:#d8d5cb; box-shadow:0 6px 20px rgba(24,24,27,.05)}
+  .kcard.active{border-color:var(--dark); box-shadow:0 0 0 1px var(--dark)}
+  .k-top{display:flex; flex-wrap:wrap; gap:5px; align-items:center}
+  .badge{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; background:var(--soft); color:#4b5563}
+  .badge.tier{background:var(--dark); color:#fff}
+  .badge.c-경제{background:#eef4ff; color:#1d4ed8}
+  .badge.c-생활{background:#eefaf1; color:#047857}
+  .badge.c-쇼핑{background:#fff5e9; color:#b45309}
+  .badge.c-육아{background:#fdf1f7; color:#be185d}
+  .badge.c-명품{background:#f4f0ff; color:#6d28d9}
+  .kcard h3{margin:0; font-size:17px; font-weight:800; letter-spacing:-.01em}
+  .metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
+  .metrics div{background:var(--soft); border-radius:10px; padding:7px 9px; min-width:0}
+  .metrics span{display:block; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:2px}
+  .metrics b{font-size:12.5px; font-weight:800; word-break:keep-all}
+  .hook{background:#fbfaf6; border:1px solid var(--line); border-left:3px solid #18181b; border-radius:0 10px 10px 0; padding:9px 11px}
+  .hook-label{font-size:10.5px; font-weight:800; color:var(--muted); letter-spacing:.03em; margin-bottom:3px}
+  .hook-text{font-size:13.5px; font-weight:700; line-height:1.45; word-break:keep-all}
+  .reason{margin:0; font-size:12.5px; color:var(--muted); line-height:1.5}
+  .btn{
+    border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit;
+    padding:9px 13px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{border-color:#cfcdc4}
+  .btn.primary{background:var(--dark); color:#fff; border-color:var(--dark)}
+  .btn.primary:hover{background:#2b2b31}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:6px 10px; font-size:12px; border-radius:9px}
+  .kcard .make{margin-top:auto; width:100%}
+  .empty{
+    grid-column:1/-1; background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius);
+    padding:26px; text-align:center; color:var(--muted); font-size:13px; line-height:1.7;
+  }
+
+  /* studio */
+  .studio{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:26px}
+  .sec-head{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px}
+  .sec-head h2{margin:0; font-size:17px; font-weight:800; letter-spacing:-.01em}
+  .sec-head p{margin:0; font-size:12.5px; color:var(--muted)}
+  .studio-grid{display:grid; grid-template-columns:minmax(300px,380px) 1fr; gap:18px; margin-top:14px}
+  .field{margin-bottom:11px}
+  .field label{display:block; font-size:11.5px; font-weight:800; color:#4b5563; margin-bottom:4px}
+  .field label em{font-style:normal; font-weight:700; color:#9a978e; margin-left:4px}
+  input[type=text], input[type=search], textarea, select{
+    width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:10px;
+    font-size:13px; font-family:inherit; line-height:1.6; background:#fdfdfc; color:var(--text); outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{border-color:#b9b6ac; background:#fff}
+  select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%236b7280' stroke-width='1.6'/></svg>"); background-repeat:no-repeat; background-position:right 12px center; padding-right:30px}
+  textarea{resize:vertical}
+  #fFacts{min-height:145px}
+  #fIntro{min-height:74px}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .actions{display:flex; flex-wrap:wrap; gap:7px; margin-top:4px}
+
+  .out{display:flex; flex-direction:column; min-width:0}
+  .out-title{display:flex; gap:6px; align-items:center; margin-bottom:6px}
+  .out-title input{font-weight:800; font-size:14px}
+  .counters{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0}
+  .stat{
+    display:flex; align-items:baseline; gap:5px; background:var(--soft); border-radius:8px; padding:5px 9px;
+    font-size:11.5px; color:var(--muted); font-weight:700;
+  }
+  .stat b{font-size:13px; color:var(--text); font-weight:800}
+  .stat.good b{color:var(--ok)}
+  .stat.bad b{color:var(--bad)}
+  #outBody{min-height:430px; margin-top:8px; font-size:13.5px; line-height:1.75; background:#fdfdfc}
+  .lint{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px}
+  .lint span{font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:999px; background:var(--ok-bg); color:var(--ok)}
+  .lint span.bad{background:var(--bad-bg); color:var(--bad)}
+  .lint span.idle{background:var(--soft); color:var(--muted)}
+  .copy-row{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px}
+
+  /* guide */
+  .guide{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden}
+  .guide-head{
+    width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:none; border:0; padding:16px 18px; cursor:pointer; font-family:inherit; text-align:left; color:var(--text);
+  }
+  .guide-head strong{font-size:16px; font-weight:800}
+  .guide-head span{font-size:12px; color:var(--muted)}
+  .guide-head .arrow{font-size:14px; color:var(--muted); transition:.2s}
+  .guide.open .arrow{transform:rotate(180deg)}
+  .guide-body{display:none; padding:0 18px 20px; border-top:1px solid var(--line)}
+  .guide.open .guide-body{display:block}
+  .guide-cols{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:16px}
+  .guide h3{margin:0 0 8px; font-size:13.5px; font-weight:800}
+  .checks{margin:0; padding:0; list-style:none; counter-reset:c}
+  .checks li{
+    position:relative; padding:7px 0 7px 30px; font-size:12.8px; border-bottom:1px solid var(--line); line-height:1.55;
+  }
+  .checks li:last-child{border-bottom:0}
+  .checks li::before{
+    counter-increment:c; content:counter(c); position:absolute; left:0; top:7px;
+    width:20px; height:20px; border-radius:50%; background:var(--soft); color:#57534e;
+    font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+  .checks b{font-weight:800}
+  .note{font-size:12.3px; color:var(--muted); line-height:1.6; margin:10px 0 0}
+  .note b{color:var(--text)}
+  table.spec{width:100%; border-collapse:collapse; font-size:12px; margin-top:8px}
+  table.spec th, table.spec td{border-bottom:1px solid var(--line); padding:6px 4px; text-align:left; vertical-align:top}
+  table.spec th{font-size:11px; color:var(--muted); font-weight:800; letter-spacing:.02em}
+  table.spec code{background:var(--soft); border-radius:4px; padding:1px 4px; font-size:11px}
+  pre{
+    background:#1c1c21; color:#e9e7e1; border-radius:12px; padding:13px; overflow:auto;
+    font-size:11.5px; line-height:1.6; margin:8px 0 0; max-height:260px;
+  }
+  pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .json-area{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+  #jsonInput{min-height:110px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px}
+  .tiny{font-size:11.5px; color:var(--muted)}
+  .tiny a{color:#57534e}
+
+  /* toast */
+  #toast{
+    position:fixed; left:50%; bottom:26px; transform:translate(-50%,16px);
+    background:#18181b; color:#fff; font-size:12.8px; font-weight:700; padding:10px 16px; border-radius:999px;
+    opacity:0; pointer-events:none; transition:.22s; z-index:50; max-width:88vw; text-align:center;
+  }
+  #toast.show{opacity:1; transform:translate(-50%,0)}
+
+  @media (max-width:900px){
+    .studio-grid{grid-template-columns:1fr}
+    .guide-cols{grid-template-columns:1fr}
+    .formula{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .wrap{padding:16px 12px 64px}
+    h1{font-size:20px}
+    .grid{grid-template-columns:1fr}
+    .metrics{grid-template-columns:1fr 1fr}
+    .two{grid-template-columns:1fr}
+    #outBody{min-height:360px}
+    .toolbar .count{width:100%; margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="kicker">MORI · BLOG HOMEFEED</div>
+      <h1>홈판 키워드 &amp; 쥬쥬체 초안 스튜디오</h1>
+    </div>
+    <nav class="nav">
+      <a href="../">릴스·쇼츠</a>
+      <a href="../instatoon/">인스타툰</a>
+      <a href="../carousel/">캐러셀</a>
+      <a class="on" href="./">블로그</a>
+    </nav>
+  </header>
+
+  <div class="meta-line">
+    <span>키워드 데이터 <b id="dataDate">2026-11-25</b></span>
+    <span class="dot"></span>
+    <span id="dataCount">5건</span>
+    <span class="dot"></span>
+    <span>제목 25~30자 · 첫 3~5문장 결론 · 해시태그 15개</span>
+  </div>
+
+  <section class="formula">
+    <div><em>01</em> <b>제목 앞 30자</b><span>대상 + 구체적 숫자·반전을 제일 앞에. 검색 키워드는 빼지 않기</span></div>
+    <div><em>02</em> <b>도입 3~5문장</b><span>인사말 없이 결론부터. 체류시간이 홈판 노출을 끌어올려요</span></div>
+    <div><em>03</em> <b>클릭은 반전에서</b><span>“~했다가 0원 나온 이유”, “10만원 내고 13만원” 같은 손실회피·비교</span></div>
+  </section>
+
+  <div class="toolbar" id="catBar">
+    <button class="chip active" data-cat="전체">전체</button>
+    <button class="chip" data-cat="경제">경제</button>
+    <button class="chip" data-cat="생활">생활</button>
+    <button class="chip" data-cat="쇼핑">쇼핑</button>
+    <button class="chip" data-cat="육아">육아</button>
+    <button class="chip" data-cat="명품">명품</button>
+    <span class="count" id="cardCount"></span>
+  </div>
+
+  <div class="grid" id="cards"></div>
+
+  <section class="studio" id="studio">
+    <div class="sec-head">
+      <h2>✍️ 쥬쥬체 &amp; 홈판 형식 초안</h2>
+      <p id="studioHint">위 카드에서 [초안 만들기]를 누르면 여기로 바로 채워져요.</p>
+    </div>
+
+    <div class="studio-grid">
+      <div class="inputs">
+        <div class="field">
+          <label for="fKeyword">주제 <em>해시태그·자동 도입에 씀</em></label>
+          <input type="text" id="fKeyword" placeholder="예: 고향사랑기부제" />
+        </div>
+        <div class="field">
+          <label for="fCat">카테고리 <em>해시태그·마무리 질문에 씀</em></label>
+          <select id="fCat">
+            <option value="경제">경제</option>
+            <option value="생활">생활</option>
+            <option value="쇼핑">쇼핑</option>
+            <option value="육아">육아</option>
+            <option value="명품">명품</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fBenefit">결론 한 줄 <em>첫 문장이 돼요</em></label>
+          <input type="text" id="fBenefit" placeholder="예: 10만원 내면 13만원 돌려받아요" />
+        </div>
+        <div class="field">
+          <label for="fIntro">도입 3~5문장 <em>비우면 결론+첫 팩트로 자동</em></label>
+          <textarea id="fIntro" rows="3" placeholder="한 줄에 한 문장씩. 인사말 없이 결론부터"></textarea>
+        </div>
+        <div class="field">
+          <label for="fFacts">핵심 팩트 <em>한 줄에 하나, 숫자 꼭 넣기</em></label>
+          <textarea id="fFacts" rows="6" placeholder="12월 31일까지 기부해야 2026년 연말정산에 들어간다&#10;답례품은 기부금의 30% 안에서 고른다"></textarea>
+        </div>
+        <div class="field">
+          <label>인용구 <em>주제가 바뀌는 곳에만 2~3개</em></label>
+          <div class="two">
+            <input type="text" id="fQuote1" placeholder="인용구 1" />
+            <input type="text" id="fQuote2" placeholder="인용구 2" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="fClosing">마무리 공감 질문 <em>비우면 카테고리 기본값</em></label>
+          <input type="text" id="fClosing" placeholder="예: 올해는 어느 지역에 보내보실 건가요?" />
+        </div>
+        <div class="field">
+          <label for="fTags">해시태그 키워드 <em>쉼표로 구분, 나머지는 자동 보충</em></label>
+          <input type="text" id="fTags" placeholder="예: 고향사랑기부제, 연말정산, 세액공제" />
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="genBtn">초안 생성</button>
+          <button class="btn" id="suggestBtn">제목 추천</button>
+          <button class="btn ghost" id="clearBtn">비우기</button>
+        </div>
+      </div>
+
+      <div class="out">
+        <div class="out-title">
+          <label for="outTitle" style="font-size:11.5px; font-weight:800; color:#4b5563; white-space:nowrap;">제목</label>
+          <input type="text" id="outTitle" placeholder="25~30자 · 앞 30자에 숫자" />
+        </div>
+        <textarea id="outBody" spellcheck="false" placeholder="왼쪽을 채우고 [초안 생성]을 누르거나, 위 카드에서 주제를 골라주세요."></textarea>
+        <div class="counters" id="counters"></div>
+        <div class="lint" id="lint"></div>
+        <div class="copy-row">
+          <button class="btn primary sm" id="copyAll">본문+태그 전체 복사</button>
+          <button class="btn sm" id="copyTitle">제목 복사</button>
+          <button class="btn sm" id="copyBody">본문만 복사</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="guide" id="guide">
+    <button class="guide-head" id="guideToggle" aria-expanded="false">
+      <span><strong>쥬쥬 블로그 필수 체크리스트</strong> &amp; 피클2용 데이터 추가 가이드</span>
+      <span class="arrow">▾</span>
+    </button>
+    <div class="guide-body">
+      <div class="guide-cols">
+        <div>
+          <h3>발행 전 체크리스트 (쥬쥬 기준)</h3>
+          <ol class="checks">
+            <li><b>제목 25~30자</b>, 앞 30자 안에 대상+숫자·반전. 핵심 유입 키워드는 절대 빼지 않기.</li>
+            <li><b>도입 3~5문장</b>은 인사말 없이 결론부터. “안녕하세요”로 시작하면 홈판에서 밀려요.</li>
+            <li><b>1~2문장마다 빈 줄</b>. 모바일에서 줄이 꽉 차면 이탈이 빨라져요.</li>
+            <li><b>인용구는 주제가 바뀔 때만 2~3개</b>. 문단마다 넣으면 AI 티가 나요.</li>
+            <li>문체는 <b>~잖아요 / ~더라고요 / ~했대요 / ㅎㅎ</b> 수다체. 어려운 말은 괄호로 풀기.</li>
+            <li><b>AI 티 금지</b>: 💡👉•【】, 첫째·둘째 나열, “알아보겠습니다”, 과장 수식어.</li>
+            <li><b>해시태그 10~15개</b>를 본문 맨 아래에. (이 페이지 기본값은 15개)</li>
+            <li><b>사진 2~3장</b>, 첫 장은 대표. 실착이 아니면 “참고용” 시점을 지키기.</li>
+            <li><b>개인정보 금지</b>: 직업·근무 병원·주소·가족 실명은 본문에 넣지 않기.</li>
+            <li>발행 전 <b>‘AI 활용 설정’ 배지</b> 확인. 발행 버튼은 희주 님이 직접.</li>
+          </ol>
+          <p class="note">
+            <b>홈판 공식</b> — 클릭은 호기심·손실회피·비교 반전에서 나옵니다. 검색어만 박은 제목(‘가습기 추천’)보다
+            “~했다가 0원 나온 이유”, “10만원 내고 13만원” 쪽이 잘 떠요. 앞 30자에 숫자와 대상을 넣고,
+            첫 3~5문장에서 결론을 먼저 주면 체류시간이 붙습니다.
+          </p>
+        </div>
+
+        <div>
+          <h3>피클2가 키워드를 추가하는 방법</h3>
+          <p class="note" style="margin-top:0">
+            피클2는 조사한 키워드를 아래 <b>JSON 규격</b>으로 만들어 이 페이지 맨 아래 입력창에 붙여넣으면 돼요.
+            [카드로 추가]를 누르면 바로 카드가 생기고, 이 브라우저에 저장돼서 새로고침해도 남아 있어요.
+          </p>
+          <table class="spec">
+            <tr><th>필드</th><th>설명</th></tr>
+            <tr><td><code>keyword</code></td><td>카드 제목이 되는 키워드 (필수)</td></tr>
+            <tr><td><code>title</code></td><td>홈판 훅 제목 25~30자 (필수)</td></tr>
+            <tr><td><code>cat</code></td><td>경제·생활·쇼핑·육아·명품 중 하나</td></tr>
+            <tr><td><code>search</code> / <code>trend</code> / <code>comp</code></td><td>검색 지표 / 상승 신호 / 경쟁도(낮음·보통·높음)</td></tr>
+            <tr><td><code>tier</code> / <code>reason</code></td><td>배지 문구 / 추천 이유 한 줄</td></tr>
+            <tr><td><code>facts</code></td><td>핵심 팩트 배열. 한 줄에 숫자 하나씩</td></tr>
+            <tr><td><code>quotes</code> / <code>closing</code> / <code>tags</code></td><td>인용구 2개 / 마무리 질문 / 해시태그 키워드</td></tr>
+          </table>
+          <p class="note">
+            <b>규칙</b> — 출처 없는 검색량은 지어내지 말고 “미집계”로 적기. 추정이면 추정이라고 표시.
+            개인정보(직업·병원·주소·가족)는 JSON에도 넣지 않기.
+          </p>
+          <pre id="jsonSample"><code>{
+  "keywords": [
+    {
+      "keyword": "가습기 추천",
+      "title": "가습기 3가지 방식, 12월 전에 바꿔야 하는 이유",
+      "cat": "생활",
+      "search": "월 4.1만",
+      "trend": "+180%",
+      "comp": "보통",
+      "tier": "지금 뜸",
+      "reason": "건조한 날씨에 검색이 몰리는데 비교 글이 적어요",
+      "facts": [
+        "가습기는 초음파·가열식·기화식 세 방식으로 나뉜다",
+        "초음파식은 세균 번식 위험이 있어 매일 세척이 필요하다"
+      ],
+      "quotes": ["방식부터 정하면 가습기는 반은 고른 거예요"],
+      "closing": "우리 집에는 어떤 방식이 맞을까요?",
+      "tags": ["가습기", "가습기추천", "겨울가습기"]
+    }
+  ]
+}</code></pre>
+          <div class="json-area">
+            <textarea id="jsonInput" placeholder="위 규격의 JSON을 붙여넣으세요"></textarea>
+            <div class="actions">
+              <button class="btn primary sm" id="jsonAdd">카드로 추가</button>
+              <button class="btn sm" id="jsonCopy">규격 복사</button>
+              <button class="btn ghost sm" id="jsonReset">추가한 카드 지우기</button>
+            </div>
+            <p class="tiny" id="jsonMsg"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="tiny" style="margin-top:18px">
+    데이터 기준 2026-11-25 · 키워드 지표는 모리 조사값이며 일부는 추정입니다. 발행 전 숫자는 공식 안내로 한 번 더 확인하세요.
+  </p>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/*__PURE_START__*/
+var CATS = ["전체", "경제", "생활", "쇼핑", "육아", "명품"];
+
+var PICKS = [
+  {
+    id: "gohyang",
+    cats: ["경제", "생활"],
+    keyword: "고향사랑기부제 연말 막차",
+    title: "고향사랑기부제 10만원으로 13만원 돌려받는 연말 마감",
+    benefit: "10만원 내면 13만원 돌려받아요",
+    search: "월 17.9만",
+    trend: "연말 집중",
+    comp: "낮음",
+    tier: "최우선",
+    reason: "검색은 많은데 블로그 글이 적어서 홈판에서 이길 자리가 가장 넓어요.",
+    intro: [
+      "고향사랑기부제, 연말정산 앞두고 지금 하면 10만 원 내고 13만 원을 돌려받는 제도예요.",
+      "정확히는 10만 원까지 낸 세금을 그대로 돌려받고, 그 지역 답례품으로 3만 원어치를 더 받는 구조거든요.",
+      "12월 31일까지 기부해야 2026년 연말정산에 들어가니까, 남은 한 달이 사실상 마지막이에요."
+    ],
+    sections: [
+      { facts: [
+        "올해부터 10만 원 초과 20만 원 이하 구간이 44%로 올라서, 20만 원을 내면 14만 4천 원이 공제돼요.",
+        "20만 원이 넘으면 공제율이 16.5%로 떨어지니까, 계산만 보면 20만 원이 마지노선이에요."
+      ]},
+      { quote: "10만 원 내고 3만 원어치 받으면 실부담은 사실상 0원이에요", facts: [
+        "답례품은 기부금의 30% 안에서 고르니까 10만 원이면 3만 원, 20만 원이면 6만 원어치예요.",
+        "한 사람당 연 2,000만 원까지 넣을 수 있고, 내 주민등록 주소지의 광역·기초자치단체에는 기부할 수 없어요."
+      ]},
+      { facts: [
+        "신청은 고향사랑e음에서 하거나 전국 농협 창구, 민간 앱에서도 할 수 있어요.",
+        "기부 내역은 다음 해 1월 연말정산 간소화 자료에 자동으로 올라와서 영수증을 따로 챙길 필요는 없어요."
+      ]},
+      { facts: [
+        "답례품 포인트는 유효기간이 5년이라, 올해 받은 걸 몰아서 고를 수도 있어요.",
+        "기부한 지역에서만 답례품을 고를 수 있으니, 지역 특산품이 뭐가 있는지 먼저 보는 게 좋아요."
+      ]},
+      { quote: "12월 31일 넘기면 내년 공제로 넘어가요", facts: [
+        "맞벌이라면 각자 10만 원씩 넣어야 둘 다 전액 공제 구간을 쓸 수 있어요.",
+        "다만 낼 세금이 거의 없는 해에는 공제액이 결정세액을 넘지 않아서 돌려받는 금액이 없을 수도 있어요 ㅎㅎ"
+      ]}
+    ],
+    quotes: ["10만 원 내고 3만 원어치 받으면 실부담은 사실상 0원이에요", "12월 31일 넘기면 내년 공제로 넘어가요"],
+    closing: "올해는 어느 지역에 마음을 보내보실 건가요?",
+    tags: ["고향사랑기부제", "고향사랑기부", "연말정산", "13만원", "세액공제", "연말정산환급", "고향사랑e음", "답례품", "절세", "재테크", "직장인재테크", "연말정산준비", "생활정보", "정부지원금", "돈버는법"]
+  },
+  {
+    id: "yearend-medical",
+    cats: ["경제", "육아"],
+    keyword: "연말정산 의료비 문턱",
+    title: "연말정산 의료비 200만원 썼는데 공제 0원인 이유",
+    benefit: "200만원 써도 총급여 3%를 못 넘으면 공제는 0원이에요",
+    search: "12월 시즌 최대",
+    trend: "12/18 마감",
+    comp: "보통",
+    tier: "시즌 임박",
+    reason: "12월 18일 미리보기 마감 전에만 수요가 몰려서 지금 쓰면 시즌을 그대로 먹어요.",
+    intro: [
+      "의료비 200만 원 쓰고 연말정산 돌려받은 게 0원이라 당황한 분들 꽤 많아요.",
+      "계산이 틀린 게 아니라, 총급여의 3%를 넘는 금액부터만 공제되기 때문이에요.",
+      "총급여 4,000만 원이면 120만 원까지는 공제가 아예 없다고 보면 돼요."
+    ],
+    sections: [
+      { facts: [
+        "공제 대상은 내가 실제로 낸 의료비 중 총급여 3%를 넘는 금액이고, 공제율은 15%예요.",
+        "일반 부양가족 의료비는 연 700만 원 한도인데, 본인과 6세 이하 자녀, 65세 이상 부모는 한도가 없어요."
+      ]},
+      { quote: "200만 원 썼는데 0원 나오는 건 계산이 틀린 게 아니에요", facts: [
+        "산후조리원비는 출산 1회당 200만 원까지 의료비로 인정되고, 이것도 15% 공제 대상이에요.",
+        "예전엔 총급여 7,000만 원 이하만 됐는데, 2024년 지출분부터 그 조건이 없어졌어요."
+      ]},
+      { facts: [
+        "첫만남이용권 같은 정부 바우처로 결제한 금액은 직접 낸 돈이 아니라서 공제에서 빠져요.",
+        "미용·성형 목적 비용, 건강기능식품, 실손보험으로 돌려받은 금액도 빠져요."
+      ]},
+      { facts: [
+        "병원비뿐 아니라 약값, 안경, 보청기, 산후조리원까지 의료비로 인정돼요.",
+        "안경은 1명당 연 50만 원까지라, 가족이 여럿이면 따로따로 쓸 수 있어요."
+      ]},
+      { quote: "3% 문턱 하나만 넘기면 돌려받는 돈이 확 달라져요", facts: [
+        "맞벌이는 총급여가 낮은 쪽으로 의료비를 몰면 문턱이 낮아져서 유리해요.",
+        "홈택스 미리보기에서 내 쪽과 배우자 쪽을 바꿔 넣어보면 어느 쪽이 유리한지 바로 비교돼요."
+      ]},
+      { facts: [
+        "홈택스 연말정산 미리보기는 12월 18일까지 열려 있어서, 지금 넣어보면 내 환급액이 바로 나와요.",
+        "간소화 자료에 산후조리원비가 안 보이면 조리원에서 영수증을 받아 회사에 따로 내면 돼요 ㅎㅎ"
+      ]}
+    ],
+    quotes: ["200만 원 썼는데 0원 나오는 건 계산이 틀린 게 아니에요", "3% 문턱 하나만 넘기면 돌려받는 돈이 확 달라져요"],
+    closing: "올해 병원비, 한 번에 몰아서 넣어보셨어요?",
+    tags: ["연말정산", "의료비공제", "산후조리원", "연말정산미리보기", "홈택스", "세액공제", "연말정산환급", "맞벌이연말정산", "육아비용", "출산혜택", "직장인연말정산", "절세팁", "연말정산준비", "생활정보", "육아정보"]
+  },
+  {
+    id: "energy-voucher",
+    cats: ["생활", "경제"],
+    keyword: "겨울 난방비·에너지바우처",
+    title: "에너지바우처 36만7천원 신청 안 하면 그냥 사라져요",
+    benefit: "평균 36만7천원, 신청해야 받는 돈이에요",
+    search: "보일러 외출모드 +709%",
+    trend: "11/10 대책",
+    comp: "낮음",
+    tier: "지금 뜸",
+    reason: "11월 10일 대책 발표 이후 난방비 질문이 ‘지원금 확인’으로 완전히 바뀌었어요.",
+    intro: [
+      "이번 겨울 에너지바우처, 평균 36만 7천 원인데 신청 안 하면 그냥 못 받고 끝나요.",
+      "정부가 11월 10일 발표한 겨울 대책에 등유·LPG 쓰는 집은 14만 7천 원이 더 붙었거든요.",
+      "신청은 12월 31일까지라, 남은 한 달 안에 우리 집이 되는지부터 봐야 해요."
+    ],
+    sections: [
+      { facts: [
+        "에너지바우처는 생계·의료·주거·교육급여 중 하나를 받으면서, 집에 노인·영유아·장애인·임산부·한부모 같은 세대원이 있어야 대상이 돼요.",
+        "금액은 세대원 수에 따라 1인 295,200원부터 4인 이상 701,300원까지예요."
+      ]},
+      { quote: "평균 36만 7천 원은 전체 수급 세대 평균이에요", facts: [
+        "우리 집 금액은 세대원 수로 다시 계산해야 하고, 4인 이상이면 70만 원이 넘어요.",
+        "등유나 LPG가 주 난방인 집은 14만 7천 원이 추가로 들어와서 4인 이상은 848,300원까지 받아요."
+      ]},
+      { facts: [
+        "추가분은 12월 9일부터 국민행복카드에 포인트로 충전되고, 2027년 5월 31일까지 써야 해요.",
+        "작년처럼 행정복지센터에 가서 선불카드를 따로 받을 필요는 없어졌어요."
+      ]},
+      { quote: "작년에 받았어도 이사했으면 다시 신청해야 해요", facts: [
+        "요금 차감을 고르면 전기·도시가스·지역난방 중 한 개만 선택할 수 있어서, 제일 많이 나오는 걸 골라야 해요.",
+        "작년에 받았어도 이사했거나 세대원이 바뀌면 다시 신청해야 혜택이 끊기지 않아요."
+      ]},
+      { facts: [
+        "신청은 주민등록지 읍면동 행정복지센터나 복지로에서 하고, 신규 신청 기간은 6월 15일부터 12월 31일까지예요.",
+        "동절기에는 요금 차감과 국민행복카드 중 하나를 골라야 하고, 도시가스·지역난방·전기·등유·LPG·연탄까지 쓸 수 있어요."
+      ]},
+      { facts: [
+        "보일러 외출 모드 검색이 709% 넘게 오른 것도, 결국 같은 돈을 덜 쓰는 방법을 다들 찾고 있다는 뜻이에요 ㅎㅎ"
+      ]}
+    ],
+    quotes: ["평균 36만 7천 원은 전체 수급 세대 평균이에요", "작년에 받았어도 이사했으면 다시 신청해야 해요"],
+    closing: "우리 집은 도시가스인가요, 지역난방인가요?",
+    tags: ["에너지바우처", "난방비", "겨울난방비", "등유LPG", "국민행복카드", "복지로", "정부지원금", "난방비절약", "보일러외출모드", "생활정보", "겨울대책", "에너지취약계층", "신청방법", "36만7천원", "절약팁"]
+  },
+  {
+    id: "daiso-xmas",
+    cats: ["쇼핑", "생활"],
+    keyword: "다이소 크리스마스 마켓",
+    title: "다이소 크리스마스 마켓, 11월에 트리 사야 하는 이유",
+    benefit: "12월보다 11월에 사야 싸고 고를 게 많아요",
+    search: "다이소크리스마스 8,380",
+    trend: "12월 초 5만 예상",
+    comp: "보통",
+    tier: "선점",
+    reason: "12월 초 정점 전에 미리 올려야 검색을 선점할 수 있어요.",
+    intro: [
+      "다이소 크리스마스 마켓이 11월 12일 열렸는데, 지금이 트리 사기 제일 좋은 때예요.",
+      "크리스마스 소품은 12월 1일에서 7일 사이에 검색이 몰려서, 그때 가면 인기 품목이 먼저 빠져요.",
+      "올해는 트리 오르골, 어드벤트 캘린더, 기차놀이까지 500여 종이 한 번에 나왔어요."
+    ],
+    sections: [
+      { facts: [
+        "트리 오르골과 집 모양 어드벤트 캘린더, 조각 퍼즐 어드벤트 캘린더는 모두 5,000원이에요.",
+        "6cm 장식볼 16개입은 3,000원, 금박 어드벤트 캘린더도 3,000원이라 부담이 적어요."
+      ]},
+      { quote: "크리스마스 소품은 12월보다 11월에 사야 싸요", facts: [
+        "12월 초에는 트리와 장식 검색이 한꺼번에 몰려서, 품절된 상품을 웃돈 주고 사는 일도 생겨요.",
+        "온라인 기획전은 11월 16일부터 20일까지만 해서, 지금은 매장 재고로만 만날 수 있어요."
+      ]},
+      { facts: [
+        "다이소·모던하우스·이케아는 같은 소품도 가격이 달라서, 한 번에 비교해보는 게 나아요.",
+        "모던하우스 전나무 트리 210cm는 229,000원처럼 올해 공개된 가격만 봐야 해요."
+      ]},
+      { facts: [
+        "온라인 품절이 잦아서, 매장 가기 전에 다이소몰에서 재고를 확인하고 가는 편이 좋아요.",
+        "크리스마스 케이크 예약도 11월 말부터 몰리니까 같이 챙겨보세요."
+      ]},
+      { quote: "트리는 높이보다 방 크기가 먼저예요", facts: [
+        "트리는 높이와 조명 소비전력을 같이 봐야 우리 집에 맞아요.",
+        "처음 꾸미는 집이라면 큰 트리보다 오르골이나 미니트리로 시작하는 편이 덜 부담스러워요 ㅎㅎ"
+      ]}
+    ],
+    quotes: ["크리스마스 소품은 12월보다 11월에 사야 싸요", "트리는 높이보다 방 크기가 먼저예요"],
+    closing: "올해 크리스마스는 어떤 분위기로 꾸며보실 건가요?",
+    tags: ["다이소", "다이소크리스마스", "크리스마스마켓", "다이소어드벤트캘린더", "트리오르골", "크리스마스트리", "홈파티", "연말인테리어", "크리스마스소품", "다이소추천", "가성비템", "집꾸미기", "12월준비", "크리스마스선물", "다이소신상"]
+  },
+  {
+    id: "winter-padding",
+    cats: ["쇼핑"],
+    keyword: "경량패딩·겨울방한템",
+    title: "경량패딩·방한화 4,265% 폭증, 11월이 마지막",
+    benefit: "검색이 4,265% 뛰었으니 사이즈는 그만큼 빨리 빠져요",
+    search: "경량패딩 +4,265%",
+    trend: "방한화 +2,738%",
+    comp: "높음",
+    tier: "경쟁 있음",
+    reason: "검색 폭증 구간이라 신규 글도 홈판에 걸릴 확률이 높아요.",
+    intro: [
+      "경량패딩 검색이 11월 들어 4,265% 올랐어요.",
+      "방한화도 2,738% 뛰었는데, 이 숫자는 인기 사이즈가 그만큼 빨리 빠진다는 뜻이에요.",
+      "연말 선물 수요까지 겹치기 전에, 11월 말이 사이즈 고르기 제일 편한 때예요."
+    ],
+    sections: [
+      { facts: [
+        "올해는 유니클로·자라 같은 기본템이 다시 많이 찾아지고 있어요.",
+        "경량패딩은 충전재와 총중량을 같이 봐야 실용적이에요."
+      ]},
+      { quote: "지금이 사이즈 고르기 제일 편한 때예요", facts: [
+        "방한화는 발볼과 방수 여부를 확인해야 겨울에 후회가 없어요.",
+        "방한화는 무게도 봐야 해요. 너무 무거우면 결국 안 신게 돼요."
+      ]},
+      { facts: [
+        "같은 옷이라도 오프라인 매장과 온라인 가격이 달라서, 최저가를 확인하고 사는 게 나아요.",
+        "경량패딩은 세탁 후 충전재가 뭉치지 않는지도 오래 입는 기준이에요."
+      ]},
+      { quote: "검색이 4,000% 넘게 뛴 건 그만큼 빨리 빠진다는 뜻이에요", facts: [
+        "패딩은 한 번 사면 서너 시즌 입으니까, 유행보다 총중량과 충전재로 고르는 편이 오래 가요.",
+        "12월에 사면 세일을 기다리다가 사이즈를 놓치는 경우가 더 많아요 ㅎㅎ"
+      ]},
+      { facts: [
+        "경량패딩은 대략 10도에서 0도 사이에 제일 잘 맞아요.",
+        "방한화는 바닥 접지력을 같이 보면 빙판에서 덜 미끄러져요."
+      ]}
+    ],
+    quotes: ["지금이 사이즈 고르기 제일 편한 때예요", "검색이 4,000% 넘게 뛴 건 그만큼 빨리 빠진다는 뜻이에요"],
+    closing: "올해 겨울 외투는 어떤 걸로 정하셨어요?",
+    tags: ["경량패딩", "겨울패딩", "방한화", "겨울방한템", "유니클로", "자라", "겨울옷", "패딩추천", "숏패딩", "롱패딩", "겨울준비", "쇼핑정보", "가성비패딩", "12월쇼핑", "겨울코디"]
+  }
+];
+
+var TAG_POOL = {
+  경제: ["연말정산", "세액공제", "절세", "재테크", "직장인재테크", "정부지원금", "환급", "생활정보", "돈버는법", "연말정산준비", "공제", "소득공제", "절약", "연말꿀팁", "정보공유"],
+  생활: ["생활정보", "정부지원금", "신청방법", "겨울준비", "절약팁", "생활꿀팁", "알뜰살뜰", "가계부", "생활지원금", "복지", "지원금", "겨울", "난방", "생활상식", "정보공유"],
+  쇼핑: ["쇼핑정보", "가성비템", "추천템", "최저가", "다이소", "쇼핑팁", "신상", "세일정보", "구매후기", "가격비교", "집꾸미기", "리빙", "연말준비", "쇼핑리스트", "내돈내산"],
+  육아: ["육아정보", "육아템", "출산혜택", "육아비용", "초보맘", "아기용품", "육아꿀팁", "출산준비", "육아지원금", "아기", "육아", "육아노트", "육아일기", "맘이야기", "육아정보공유"],
+  명품: ["명품", "명품쇼핑", "가격비교", "면세점", "일본쇼핑", "명품가방", "럭셔리", "백화점", "관세", "면세한도", "명품추천", "가격차이", "쇼핑정보", "해외직구", "명품리뷰"]
+};
+
+var CLOSINGS = {
+  경제: "올해 연말정산, 다 챙기고 계신가요?",
+  생활: "우리 집은 여기에 해당되나요?",
+  쇼핑: "이번 겨울 준비는 다 하셨어요?",
+  육아: "우리 아기한테는 어떻게 해주고 계세요?",
+  명품: "다음 명품은 어디서 사시나요?"
+};
+
+var TITLE_SUFFIX = {
+  경제: ["의 반전", "진짜 이유", "연말 꿀팁"],
+  생활: ["총정리", "신청 방법", "놓치면 손해"],
+  쇼핑: ["사야 하는 이유", "가격 정리", "비교해봤어요"],
+  육아: ["한 번에 정리", "주의할 점", "엄마들 후기"],
+  명품: ["가격 차이", "일본 비교", "사기 전 확인"]
+};
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function splitLines(t) {
+  return String(t || "").split(/\r?\n/).map(function (x) { return x.trim().replace(/^[-*•]\s*/, ""); }).filter(Boolean);
+}
+
+function ensurePeriod(s) {
+  s = String(s || "").trim();
+  if (!s) return "";
+  return /[.!?]$/.test(s) ? s : s + ".";
+}
+
+function isPolite(s) {
+  return /(요|죠|네요|니다|까요|세요|ㅎㅎ)$/.test(s);
+}
+
+function stemOfPlain(s) {
+  // s는 '다'로 끝나는 평서형. 어간만 남긴다.
+  if (/\uB294\uB2E4$/.test(s)) return s.slice(0, -2); // 받는다 → 받
+  var stem = s.slice(0, -1);
+  var last = stem.charCodeAt(stem.length - 1);
+  if (last >= 0xAC00 && last <= 0xD7A3) {
+    var jong = (last - 0xAC00) % 28;
+    if (jong === 4) stem = stem.slice(0, -1) + String.fromCharCode(last - 4); // 간다 → 가
+  }
+  return stem;
+}
+
+function toJuju(line, idx) {
+  var s = String(line || "").trim().replace(/[.。]$/, "");
+  if (!s) return "";
+  if (isPolite(s)) return s;
+  if (/다$/.test(s)) {
+    var stem = stemOfPlain(s);
+    var ends = ["더라고요", "잖아요", "더라고요", "거든요", "더라고요", "잖아요"];
+    return stem + ends[idx % ends.length];
+  }
+  return s + "이에요";
+}
+
+function buildSections(facts, quotes) {
+  var pairs = [];
+  for (var i = 0; i < facts.length; i += 2) pairs.push(facts.slice(i, i + 2));
+  var secs = [];
+  var q1 = (quotes && quotes[0]) || "";
+  var q2 = (quotes && quotes[1]) || "";
+  var p1 = pairs.length > 1 ? 1 : pairs.length;
+  var p2 = Math.max(p1 + 1, Math.floor(pairs.length * 0.6));
+  var used1 = false, used2 = false;
+  pairs.forEach(function (p, idx) {
+    if (q1 && idx === p1 && !used1) { secs.push({ quote: q1 }); used1 = true; }
+    if (q2 && idx === p2 && used1 && !used2) { secs.push({ quote: q2 }); used2 = true; }
+    secs.push({ facts: p });
+  });
+  if (q1 && !used1) {
+    if (secs.length > 1) secs.splice(secs.length - 1, 0, { quote: q1 });
+    else secs.push({ quote: q1 });
+  }
+  if (q2 && !used2) secs.push({ quote: q2 });
+  return secs;
+}
+
+function groupSentences(arr, per) {
+  per = per || 2;
+  var out = [];
+  for (var i = 0; i < arr.length; i += per) out.push(arr.slice(i, i + per).join(" "));
+  return out;
+}
+
+function buildBody(opts) {
+  var blocks = [];
+  var intro = (opts.intro || []).filter(Boolean);
+  if (intro.length) blocks.push(groupSentences(intro, 2).join("\n\n"));
+  (opts.sections || []).forEach(function (sec) {
+    if (sec.quote) blocks.push("[인용구] " + sec.quote);
+    if (sec.facts && sec.facts.length) blocks.push(sec.facts.join(" "));
+  });
+  if (opts.closing) blocks.push(opts.closing);
+  if (opts.tags && opts.tags.length) blocks.push(opts.tags.join(" "));
+  return blocks.filter(Boolean).join("\n\n");
+}
+
+function cleanTag(s) {
+  return String(s || "").replace(/^#/, "").replace(/[^가-힣a-zA-Z0-9]/g, "");
+}
+
+function makeTags(keyword, extra, cat) {
+  var out = [];
+  var push = function (t) {
+    t = cleanTag(t);
+    if (t && out.indexOf(t) === -1) out.push(t);
+  };
+  push(keyword);
+  String(extra || "").split(/[,\s#]+/).forEach(push);
+  var pool = TAG_POOL[cat] || TAG_POOL["생활"];
+  for (var i = 0; i < pool.length && out.length < 15; i++) push(pool[i]);
+  if (out.length > 15) out = out.slice(0, 15);
+  return out.map(function (t) { return "#" + t; });
+}
+
+function autoIntro(keyword, benefit, facts) {
+  var s = [];
+  if (benefit) s.push(ensurePeriod(benefit));
+  facts.slice(0, 2).forEach(function (f) { if (s.length < 3) s.push(ensurePeriod(f)); });
+  if (!s.length && keyword) s.push(keyword + " 정리해봤어요.");
+  return s;
+}
+
+function suggestTitle(keyword, benefit, facts, cat) {
+  var kw = String(keyword || "").trim();
+  var src = [benefit].concat(facts || []).join(" ");
+  var m = src.match(/\d[\d,.]*\s*(만\s*원|만원|만|원|%|배|천|개|일|월)/);
+  var num = m ? m[0].replace(/\s+/g, "") : "";
+  var sufs = TITLE_SUFFIX[cat] || TITLE_SUFFIX["생활"];
+  var cands = [];
+  sufs.forEach(function (s) {
+    if (num) {
+      cands.push((kw + " " + num + " " + s).replace(/\s+/g, " ").trim());
+      cands.push((kw + " " + num + ", " + s).replace(/\s+/g, " ").trim());
+    }
+    cands.push((kw + " " + s).replace(/\s+/g, " ").trim());
+  });
+  cands.push(kw);
+  var best = cands[0], bestScore = 1e9;
+  cands.forEach(function (c) {
+    var len = c.length;
+    if (len < 6) return;
+    // 25~30자를 가장 선호, 숫자가 앞쪽에 있으면 가점
+    var score = Math.abs(27.5 - len);
+    if (len >= 25 && len <= 30) score -= 6;
+    if (/\d/.test(c.slice(0, 30))) score -= 2;
+    if (score < bestScore) { bestScore = score; best = c; }
+  });
+  if (best.length < 25) {
+    var pads = [" 한눈에 정리", " 총정리", " 정리"];
+    for (var i = 0; i < pads.length; i++) {
+      var t = best + pads[i];
+      if (t.length >= 25 && t.length <= 30) { best = t; break; }
+    }
+  }
+  return best;
+}
+
+function stats(title, body) {
+  var t = String(title || "").trim();
+  var b = String(body || "");
+  var blocks = b.split(/\n{2,}/).map(function (x) { return x.trim(); }).filter(Boolean);
+  var tagLine = "";
+  for (var i = blocks.length - 1; i >= 0; i--) {
+    if (/^#/.test(blocks[i])) { tagLine = blocks[i]; break; }
+  }
+  var tagCount = (tagLine.match(/#[^\s#]+/g) || []).length;
+  var contentBlocks = blocks.filter(function (x) { return !/^#/.test(x); }).length;
+  var quotes = (b.match(/\[인용구\]/g) || []).length;
+  return {
+    titleLen: t.length,
+    chars: b.length,
+    noSpace: b.replace(/\s/g, "").length,
+    blocks: contentBlocks,
+    quotes: quotes,
+    tags: tagCount,
+    numberInFront: /\d/.test(t.slice(0, 30))
+  };
+}
+
+var LINT_RULES = [
+  { re: /[💡👉✅🔥⭐•【】▶①②③]/g, label: "이모티콘·불릿" },
+  { re: /^\s*([-*•]|\d+[.)])\s/gm, label: "목록식 불릿" },
+  { re: /첫째|둘째|셋째/g, label: "첫째·둘째 나열" },
+  { re: /알아보(겠|도록)|결론적으로|시사하는|살펴보(겠|도록)|정리해 ?보겠/g, label: "AI·번역체" },
+  { re: /매우|굉장히|엄청난|완벽한|무조건/g, label: "과장 수식어" },
+  { re: /^(안녕하세요|반갑습니다)/m, label: "인사말 도입" }
+];
+
+function lintDraft(body) {
+  var b = String(body || "");
+  var hits = [];
+  LINT_RULES.forEach(function (r) {
+    var m = b.match(r.re);
+    if (m) hits.push({ label: r.label, sample: m.slice(0, 3).join(" ") });
+  });
+  return hits;
+}
+/*__PURE_END__*/
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var STORE_KEY = "mori-blog-picks-v1";
+  var state = { cat: "전체", extra: [], activeId: null, loaded: null };
+
+  PICKS.forEach(function (p) { p._seed = true; });
+
+  function loadExtra() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) state.extra = JSON.parse(raw) || [];
+    } catch (e) { state.extra = []; }
+  }
+  function saveExtra() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state.extra)); } catch (e) {}
+  }
+  function allPicks() { return PICKS.concat(state.extra); }
+
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove("show"); }, 2000);
+  }
+
+  function slug(s) {
+    return String(s || "").replace(/\s+/g, "-").slice(0, 24) || ("k" + Date.now());
+  }
+
+  function normalizePick(o) {
+    var keyword = String(o.keyword || o.title || "").trim();
+    var cat = (o.cat && CATS.indexOf(o.cat) > 0) ? o.cat : "생활";
+    var facts = [];
+    var sections = [];
+    if (Array.isArray(o.sections) && o.sections.length) {
+      o.sections.forEach(function (s) {
+        var sec = { facts: (s.facts || []).map(String).filter(Boolean) };
+        if (s.quote) sec.quote = String(s.quote);
+        if (sec.facts.length || sec.quote) sections.push(sec);
+        sec.facts.forEach(function (f) { facts.push(f); });
+      });
+    } else {
+      facts = (o.facts || []).map(String).filter(Boolean);
+    }
+    var quotes = (o.quotes && o.quotes.length) ? o.quotes.map(String) : sections.filter(function (s) { return s.quote; }).map(function (s) { return s.quote; });
+    quotes = quotes.filter(Boolean);
+    if (!sections.length) sections = buildSections(facts, quotes);
+    return {
+      id: o.id || ("u-" + slug(keyword)),
+      cats: Array.isArray(o.cats) && o.cats.length ? o.cats : [cat],
+      keyword: keyword,
+      title: String(o.title || "").trim(),
+      benefit: String(o.benefit || "").trim(),
+      search: String(o.search || "미집계"),
+      trend: String(o.trend || "미집계"),
+      comp: String(o.comp || "보통"),
+      tier: String(o.tier || "추가"),
+      reason: String(o.reason || ""),
+      intro: (o.intro || []).map(String).filter(Boolean),
+      sections: sections,
+      facts: facts,
+      quotes: quotes,
+      closing: String(o.closing || ""),
+      tags: (o.tags || []).map(function (t) { return String(t).replace(/^#/, ""); }).filter(Boolean)
+    };
+  }
+
+  function renderCards() {
+    var list = allPicks().filter(function (p) {
+      return state.cat === "전체" || p.cats.indexOf(state.cat) > -1;
+    });
+    var grid = $("cards");
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty">이 카테고리는 아직 비어 있어요.<br>아래 <b>피클2용 데이터 추가 가이드</b>에서 JSON을 붙여넣으면 바로 카드가 생겨요.</div>';
+    } else {
+      grid.innerHTML = list.map(function (p) {
+        var cat = p.cats[0];
+        var hookLen = (p.title || "").length;
+        return '' +
+          '<article class="kcard' + (state.activeId === p.id ? " active" : "") + '" data-id="' + esc(p.id) + '">' +
+            '<div class="k-top">' +
+              '<span class="badge c-' + esc(cat) + '">' + esc(cat) + "</span>" +
+              '<span class="badge tier">' + esc(p.tier) + "</span>" +
+              '<span class="badge">경쟁 ' + esc(p.comp) + "</span>" +
+            "</div>" +
+            "<h3>" + esc(p.keyword) + "</h3>" +
+            '<div class="metrics">' +
+              "<div><span>검색 지표</span><b>" + esc(p.search) + "</b></div>" +
+              "<div><span>상승 신호</span><b>" + esc(p.trend) + "</b></div>" +
+              "<div><span>제목 길이</span><b>" + hookLen + "자</b></div>" +
+            "</div>" +
+            '<div class="hook">' +
+              '<div class="hook-label">홈판 훅 제목</div>' +
+              '<div class="hook-text">' + esc(p.title) + "</div>" +
+            "</div>" +
+            '<p class="reason">' + esc(p.reason) + "</p>" +
+            '<button class="btn primary make" data-make="' + esc(p.id) + '">초안 만들기 →</button>' +
+          "</article>";
+      }).join("");
+    }
+    $("cardCount").textContent = list.length + " / " + allPicks().length + "건";
+  }
+
+  function currentCat() {
+    var el = $("fCat");
+    var v = el ? el.value : "";
+    return (v && v !== "전체") ? v : (state.cat !== "전체" ? state.cat : "경제");
+  }
+
+  function setActive(id) {
+    state.activeId = id;
+    Array.prototype.forEach.call(document.querySelectorAll(".kcard"), function (el) {
+      el.classList.toggle("active", el.getAttribute("data-id") === id);
+    });
+  }
+
+  function flatFacts(p) {
+    if (p.facts && p.facts.length) return p.facts.slice();
+    var out = [];
+    (p.sections || []).forEach(function (s) { (s.facts || []).forEach(function (f) { out.push(f); }); });
+    return out;
+  }
+
+  function fillForm(p) {
+    $("fKeyword").value = p.keyword || "";
+    $("fCat").value = p.cats[0] || "생활";
+    $("fBenefit").value = p.benefit || "";
+    $("fIntro").value = (p.intro && p.intro.length ? p.intro : []).join("\n");
+    $("fFacts").value = flatFacts(p).join("\n");
+    $("fQuote1").value = (p.quotes && p.quotes[0]) || "";
+    $("fQuote2").value = (p.quotes && p.quotes[1]) || "";
+    $("fClosing").value = p.closing || "";
+    $("fTags").value = (p.tags || []).join(", ");
+  }
+
+  function loadPick(id) {
+    var p = allPicks().filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    state.loaded = p;
+    fillForm(p);
+    $("outTitle").value = p.title || "";
+    var facts = flatFacts(p);
+    var intro = (p.intro && p.intro.length) ? p.intro : autoIntro(p.keyword, p.benefit, facts);
+    var sections = (p.sections && p.sections.length) ? p.sections : buildSections(facts, p.quotes || []);
+    var tags = (p.tags && p.tags.length) ? p.tags.map(function (t) { return "#" + String(t).replace(/^#/, ""); }) : makeTags(p.keyword, "", p.cats[0]);
+    $("outBody").value = buildBody({ intro: intro, sections: sections, closing: p.closing, tags: tags });
+    setActive(id);
+    refresh();
+    $("studioHint").textContent = "‘" + p.keyword + "’ 초안을 불러왔어요. 숫자만 최신으로 고쳐서 쓰면 돼요.";
+    var y = $("studio").getBoundingClientRect().top + window.pageYOffset - 12;
+    window.scrollTo({ top: y, behavior: "smooth" });
+    toast("초안을 불러왔어요");
+  }
+
+  function generate() {
+    var kw = $("fKeyword").value.trim();
+    var benefit = $("fBenefit").value.trim();
+    var factsRaw = splitLines($("fFacts").value);
+    var facts = factsRaw.map(function (l, i) { return ensurePeriod(toJuju(l, i)); }).filter(Boolean);
+    var introLines = splitLines($("fIntro").value).map(function (s, i) { return isPolite(s.replace(/[.。]$/, "")) ? s : ensurePeriod(toJuju(s, i)); });
+    var intro;
+    var rest = facts;
+    if (introLines.length) {
+      intro = introLines;
+    } else {
+      intro = autoIntro(kw, benefit, facts);
+      rest = facts.slice(2);
+    }
+    var quotes = [$("fQuote1").value.trim(), $("fQuote2").value.trim()].filter(Boolean);
+    var closing = $("fClosing").value.trim() || CLOSINGS[currentCat()] || CLOSINGS["생활"];
+    var tags = makeTags(kw, $("fTags").value, currentCat());
+    var sections = buildSections(rest.length ? rest : facts, quotes);
+
+    if (!$("outTitle").value.trim()) {
+      $("outTitle").value = suggestTitle(kw, benefit, factsRaw, currentCat());
+    }
+    $("outBody").value = buildBody({ intro: intro, sections: sections, closing: closing, tags: tags });
+    refresh();
+  }
+
+  function refresh() {
+    var s = stats($("outTitle").value, $("outBody").value);
+    var titleOk = s.titleLen >= 25 && s.titleLen <= 30;
+    var tagOk = s.tags >= 10 && s.tags <= 15;
+    var quoteOk = s.quotes >= 2 && s.quotes <= 3;
+    var blockOk = s.blocks >= 6;
+    $("counters").innerHTML = "" +
+      '<div class="stat ' + (titleOk ? "good" : "bad") + '">제목 <b>' + s.titleLen + "자</b></div>" +
+      '<div class="stat">본문 <b>' + s.chars.toLocaleString() + "자</b></div>" +
+      '<div class="stat">공백 제외 <b>' + s.noSpace.toLocaleString() + "자</b></div>" +
+      '<div class="stat ' + (blockOk ? "good" : "") + '">문단 <b>' + s.blocks + "</b></div>" +
+      '<div class="stat ' + (quoteOk ? "good" : "bad") + '">인용구 <b>' + s.quotes + "</b></div>" +
+      '<div class="stat ' + (tagOk ? "good" : "bad") + '">해시태그 <b>' + s.tags + "개</b></div>" +
+      '<div class="stat ' + (s.numberInFront ? "good" : "bad") + '">앞 30자 숫자 <b>' + (s.numberInFront ? "있음" : "없음") + "</b></div>";
+
+    var hits = lintDraft($("outBody").value);
+    var lint = $("lint");
+    if (!$("outBody").value.trim()) {
+      lint.innerHTML = '<span class="idle">초안을 만들면 AI 티 검사가 같이 돌아가요</span>';
+    } else if (!hits.length) {
+      lint.innerHTML = '<span>금지 표현 없음</span><span>AI 티 통과</span>';
+    } else {
+      lint.innerHTML = hits.map(function (h) {
+        return '<span class="bad">' + esc(h.label) + " · " + esc(h.sample) + "</span>";
+      }).join("");
+    }
+  }
+
+  function copyText(text, okMsg) {
+    if (!text) { toast("복사할 내용이 없어요"); return; }
+    var done = function () { toast(okMsg || "복사했어요"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("복사가 막혔어요. 직접 선택해서 복사해 주세요"); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  function bodyOnly() {
+    var b = $("outBody").value;
+    var blocks = b.split(/\n{2,}/);
+    while (blocks.length && /^#/.test(blocks[blocks.length - 1].trim())) blocks.pop();
+    return blocks.join("\n\n").trim();
+  }
+
+  // events
+  $("catBar").addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    state.cat = btn.getAttribute("data-cat");
+    if (state.cat !== "전체" && $("fCat")) $("fCat").value = state.cat;
+    Array.prototype.forEach.call($("catBar").querySelectorAll(".chip"), function (b) {
+      b.classList.toggle("active", b === btn);
+    });
+    renderCards();
+  });
+
+  $("cards").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-make]");
+    if (btn) { loadPick(btn.getAttribute("data-make")); return; }
+    var card = e.target.closest(".kcard");
+    if (card) setActive(card.getAttribute("data-id"));
+  });
+
+  $("genBtn").addEventListener("click", function () { generate(); toast("초안을 만들었어요"); });
+  $("suggestBtn").addEventListener("click", function () {
+    var facts = splitLines($("fFacts").value);
+    $("outTitle").value = suggestTitle($("fKeyword").value.trim(), $("fBenefit").value.trim(), facts, currentCat());
+    refresh();
+  });
+  $("clearBtn").addEventListener("click", function () {
+    ["fKeyword", "fBenefit", "fIntro", "fFacts", "fQuote1", "fQuote2", "fClosing", "fTags", "outTitle", "outBody"].forEach(function (id) { $(id).value = ""; });    state.loaded = null;
+    setActive(null);
+    refresh();
+    $("studioHint").textContent = "위 카드에서 [초안 만들기]를 누르면 여기로 바로 채워져요.";
+  });
+
+  ["outTitle", "outBody"].forEach(function (id) {
+    $(id).addEventListener("input", refresh);
+  });
+
+  $("copyAll").addEventListener("click", function () {
+    var t = $("outTitle").value.trim();
+    copyText((t ? t + "\n\n" : "") + $("outBody").value.trim(), "제목+본문+태그를 복사했어요");
+  });
+  $("copyTitle").addEventListener("click", function () { copyText($("outTitle").value.trim(), "제목을 복사했어요"); });
+  $("copyBody").addEventListener("click", function () { copyText(bodyOnly(), "본문을 복사했어요"); });
+
+  $("guideToggle").addEventListener("click", function () {
+    var g = $("guide");
+    g.classList.toggle("open");
+    $("guideToggle").setAttribute("aria-expanded", g.classList.contains("open") ? "true" : "false");
+  });
+
+  $("jsonAdd").addEventListener("click", function () {
+    var msg = $("jsonMsg");
+    var raw = $("jsonInput").value.trim();
+    if (!raw) { msg.textContent = "JSON을 붙여넣어 주세요."; return; }
+    var parsed;
+    try { parsed = JSON.parse(raw); } catch (err) { msg.textContent = "JSON 형식이 아니에요: " + err.message; return; }
+    var arr = Array.isArray(parsed) ? parsed : (parsed && parsed.keywords);
+    if (!Array.isArray(arr)) { msg.textContent = "\"keywords\" 배열이 필요해요."; return; }
+    var added = 0, skipped = 0;
+    arr.forEach(function (o) {
+      if (!o || !(o.keyword || o.title)) return;
+      var p = normalizePick(o);
+      if (allPicks().some(function (x) { return x.id === p.id || x.keyword === p.keyword; })) { skipped++; return; }
+      state.extra.push(p);
+      added++;
+    });
+    saveExtra();
+    renderCards();
+    msg.textContent = added + "건 추가" + (skipped ? " · " + skipped + "건은 이미 있어서 건너뜀" : "") + " · 이 브라우저에 저장됨";
+    toast(added ? added + "건 카드로 추가했어요" : "새로 추가된 카드가 없어요");
+  });
+
+  $("jsonCopy").addEventListener("click", function () {
+    var el = $("jsonSample");
+    copyText(el.innerText || el.textContent, "JSON 규격을 복사했어요");
+  });
+
+  $("jsonReset").addEventListener("click", function () {
+    state.extra = [];
+    saveExtra();
+    renderCards();
+    $("jsonMsg").textContent = "추가한 카드를 모두 지웠어요. (기본 5건은 남아 있어요)";
+    toast("추가한 카드를 지웠어요");
+  });
+
+  loadExtra();
+  $("dataCount").textContent = allPicks().length + "건";
+  renderCards();
+  refresh();
+})();
+</script>
+</body>
+</html>
