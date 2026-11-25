@@ -310,7 +310,7 @@
       </div>
     </div>
     <div style="font-size:12px; color:var(--muted); margin:-6px 0 14px 4px;">
-      2026-11-25 업데이트 · 실제 수집 영상 3건 반영 (피부·미용 2건 · 육아·생활 1건) — 새로 터진 영상은 뮤즈 수집분으로 계속 채웁니다.
+      2026-11-25 기준 · 피부과 의사·미용 원장님 릴스·쇼츠만 새로 수집 중이에요.
     </div>
 
     <div class="grid" id="cardGrid"></div>
@@ -318,62 +318,7 @@
 
   <script>
     // youtubeId가 있으면 페이지 안에서 바로 영상 재생, 인스타 릴스는 공식 임베드로 재생 (실패 시 아래 '원본 열기' 링크)
-    const ITEMS = [
-      {
-        id: 1,
-        category: "beauty",
-        platform: "youtube",
-        account: "@MEKNOWW",
-        title: "여섯 개 중 내 피부색이랑 가장 비슷한 건 몇 번?",
-        views: "조회수 71.3만",
-        date: "11-20 게시",
-        badge: "구독자 대비 약 14배",
-        solo: "ok",
-        soloLabel: "혼자 촬영 ⭕ (자막 퀴즈형)",
-        youtubeId: "i-xvgTcUaHM",
-        url: "https://www.youtube.com/shorts/i-xvgTcUaHM",
-        hook: "\"여섯 개 중에 내 피부색이랑 가장 비슷한 거, 몇 번이에요?\"",
-        original: "6가지 손 그림 중 자기 피부색과 가장 비슷한 번호를 고르는 6초 퀴즈 밈.",
-        adapt: "파운데이션 사러 갔다가 21호 23호 앞에서 10분 고민한 적 있죠? 사실 호수 고르기 전에 내 피부톤부터 알아야 해요.\n\n손목 안쪽을 보세요. 혈관이 파랗게 보이면 쿨톤, 초록빛이면 웜톤이에요. 웜톤인데 쿨톤 파데 바르면 얼굴만 동동 뜨거든요.\n\n오늘 손목 혈관 색깔 확인하고 댓글에 웜톤인지 쿨톤인지 남겨보세요. 다음 영상에서 톤별 파데 고르는 법 알려드릴게요."
-      },
-      {
-        id: 2,
-        category: "beauty",
-        platform: "insta",
-        account: "@hwi_face",
-        title: "내 얼굴 고민에 맞는 괄사 마사지",
-        views: "좋아요 1,665",
-        followers: "팔로워 3.98만",
-        date: "11-15 게시",
-        badge: "조회수 미확인",
-        badgeKind: "muted",
-        solo: "ok",
-        soloLabel: "혼자 촬영 ⭕ (셀프 실연)",
-        instaEmbed: "https://www.instagram.com/reel/DfwgSZDzStf/embed",
-        url: "https://www.instagram.com/reel/DfwgSZDzStf/",
-        hook: "\"턱이 뻐근하고 얼굴이 부었을 때, 귀 뒤부터 풀어보세요.\"",
-        original: "빗살 모양 괄사 도구로 귀 뒤·턱선·목덜미를 쓸어내리는 셀프 마사지 + 유양돌기·턱관절 근육 해부 그림 오버레이 및 전후 비교.",
-        adapt: "아침에 얼굴 부어서 거울 보고 한숨 쉬신 분들, 귀 뒤부터 풀어보세요.\n\n턱관절 주변 근육이 뭉치면 림프가 막혀서 얼굴이 붓고 턱선도 무뎌져요. 귀 뒤 움푹한 곳부터 턱선 따라 쇄골 쪽으로 가볍게 쓸어내리면 됩니다.\n\n단, 턱에서 딱 소리 나거나 통증 있으면 세게 누르지 말고 멈추세요. 그건 마사지로 풀 문제가 아니에요."
-      },
-      {
-        id: 3,
-        category: "parenting",
-        platform: "youtube",
-        account: "@giyogiyomimi",
-        title: "100만명이 감탄한 엄마의 교육법",
-        views: "조회수 75.9만",
-        date: "11-21 게시",
-        badge: "구독자 대비 약 7.8배",
-        solo: "edit",
-        soloLabel: "🟡 아기 뒷모습 출연 또는 대체 가능",
-        youtubeId: "w4JW3kwhS2o",
-        url: "https://www.youtube.com/shorts/w4JW3kwhS2o",
-        hook: "\"책만 펴면 1분 만에 잠드는 쌍둥이, 비결은 조기교육이 아닙니다.\"",
-        original: "침대에 나란히 앉아 책을 펼치고 옹알이로 '독서'하던 쌍둥이가 차례로 잠드는 영상. 반전은 교육법이 아니라 책 읽는 루틴이 수면 신호가 된 것.",
-        adapt: "잘 자던 아기가 갑자기 밤에 자주 깨면 다들 뭘 바꿔야 하나 고민하죠?\n\n사실 아기는 '이제 잘 시간'이라는 신호를 루틴으로 기억해요. 매일 같은 시간, 같은 책 한 권, 같은 자장가. 책 내용이 중요한 게 아니라 반복되는 순서가 수면 스위치예요.\n\n오늘부터 잠들기 전 책 한 권만 고정해보세요. 6개월 아기 낮잠 루틴이랑 같이 잡으면 밤잠이 훨씬 안정돼요."
-      }
-    ];
-
+    const ITEMS = [];
     let state = { category: "beauty", platform: "all", soloOnly: false, query: "" };
     const grid = document.getElementById("cardGrid");
 
@@ -475,7 +420,7 @@
             <a class="open-link" href="${item.url}" target="_blank" rel="noopener">원본 릴스/쇼츠 열기 ↗</a>
           </div>
         </article>
-      `).join("") || `<div style="color:var(--muted); padding:24px;">조건에 맞는 영상이 없어요.</div>`;
+      `).join("") || `<div style="color:var(--muted); padding:24px;">아직 조건에 맞는 원장님 영상이 올라오기 전이에요.</div>`;
     }
 
     document.querySelectorAll(".tab-btn").forEach(btn => {
