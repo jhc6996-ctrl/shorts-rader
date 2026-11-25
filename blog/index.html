@@ -349,6 +349,9 @@
             피클2는 조사한 키워드를 아래 <b>JSON 규격</b>으로 만들어 이 페이지 맨 아래 입력창에 붙여넣으면 돼요.
             [카드로 추가]를 누르면 바로 카드가 생기고, 이 브라우저에 저장돼서 새로고침해도 남아 있어요.
           </p>
+          <p class="note" style="margin-top:0">
+            모든 기기에 한 번에 띄우려면 <code>blog/data.json</code>의 <code>keywords</code> 배열에 같은 형식으로 넣고 업로드하면 돼요 (이 작업은 모리가 함).
+          </p>
           <table class="spec">
             <tr><th>필드</th><th>설명</th></tr>
             <tr><td><code>keyword</code></td><td>카드 제목이 되는 키워드 (필수)</td></tr>
@@ -845,7 +848,7 @@ function lintDraft(body) {
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var STORE_KEY = "mori-blog-picks-v1";
-  var state = { cat: "전체", extra: [], activeId: null, loaded: null };
+  var state = { cat: "전체", extra: [], activeId: null, loaded: null, remote: null };
 
   PICKS.forEach(function (p) { p._seed = true; });
 
@@ -858,7 +861,7 @@ function lintDraft(body) {
   function saveExtra() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state.extra)); } catch (e) {}
   }
-  function allPicks() { return PICKS.concat(state.extra); }
+  function allPicks() { return (state.remote || PICKS).concat(state.extra); }
 
   function toast(msg) {
     var t = $("toast");
@@ -1160,10 +1163,37 @@ function lintDraft(body) {
     toast("추가한 카드를 지웠어요");
   });
 
+  function fetchData() {
+    if (!window.fetch) return;
+    var opts = { cache: "no-store" };
+    var timer = null, ctrl = null;
+    if (window.AbortController) {
+      ctrl = new AbortController();
+      opts.signal = ctrl.signal;
+      timer = setTimeout(function () { ctrl.abort(); }, 4000);
+    }
+    window.fetch("data.json", opts)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (timer) clearTimeout(timer);
+        if (!d) return;
+        var arr = Array.isArray(d) ? d : d.keywords;
+        if (!Array.isArray(arr) || !arr.length) return;
+        var remote = arr.map(normalizePick).filter(function (p) { return p.keyword && p.title; });
+        if (!remote.length) return;
+        state.remote = remote;
+        if (d.updated) $("dataDate").textContent = d.updated;
+        $("dataCount").textContent = allPicks().length + "건";
+        renderCards();
+      })
+      .catch(function () { if (timer) clearTimeout(timer); });
+  }
+
   loadExtra();
   $("dataCount").textContent = allPicks().length + "건";
   renderCards();
   refresh();
+  fetchData();
 })();
 </script>
 </body>
