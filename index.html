@@ -158,7 +158,7 @@
     .media-box {
       position: relative;
       width: 100%;
-      aspect-ratio: 9 / 12;
+      aspect-ratio: 9 / 13;
       background: #111;
       overflow: hidden;
     }
@@ -764,12 +764,8 @@
       }
       if (item.platform === "insta" && item.instaEmbed) {
         return `
-          <div class="media-box" onclick="playEmbed(this, '${item.instaEmbed}')" style="cursor:pointer;">
-            <div class="media-placeholder" style="justify-content:space-between;">
-              <div style="font-size:12px; opacity:0.85;">${item.account} · ${item.date}</div>
-              <div class="play-pill">▶ 릴스 바로 재생</div>
-              <div style="font-size:13px; font-weight:700;">${item.hook}</div>
-            </div>
+          <div class="media-box" style="background:#fff;">
+            <iframe src="${item.instaEmbed}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen scrolling="no"></iframe>
           </div>
         `;
       }
